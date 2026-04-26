@@ -1,6 +1,6 @@
-# Modern Landing Page
+# Modern Landing Page with Auth0 Authentication
 
-A beautiful, responsive landing page built with HTML, CSS, and JavaScript. Ready to deploy on Vercel.
+A beautiful, responsive landing page built with HTML, CSS, and JavaScript, integrated with Auth0 authentication. Ready to deploy on Vercel.
 
 ## Features
 
@@ -10,6 +10,9 @@ A beautiful, responsive landing page built with HTML, CSS, and JavaScript. Ready
 - 🔄 Smooth animations and transitions
 - 📧 Contact form
 - 🎯 SEO-friendly
+- 🔒 **Auth0 Authentication** - Secure user login/logout
+- 👤 **User Profile Display** - Show authenticated user info
+- 🎁 **Gated Content** - Content visible only to authenticated users
 
 ## Project Structure
 
@@ -18,11 +21,45 @@ vercel-landing-page/
 ├── index.html          # Main HTML file
 ├── styles.css          # CSS styles
 ├── script.js           # JavaScript functionality
+├── auth0-config.js     # Auth0 configuration
+├── auth.js             # Auth0 authentication logic
 ├── vercel.json         # Vercel configuration
 ├── package.json        # Project metadata
 ├── .gitignore          # Git ignore rules
+├── .env.example        # Environment variables template
+├── AUTH0_SETUP.md      # Detailed Auth0 setup guide
 └── README.md           # This file
 ```
+
+## Auth0 Setup
+
+**Quick Start:**
+
+1. **Create an Auth0 account** at https://auth0.com
+2. **Create a Single Page Application** in Auth0 Dashboard
+3. **Configure callback URLs** in Auth0:
+   - Allowed Callback URLs: `http://localhost:8080, https://your-app.vercel.app`
+   - Allowed Logout URLs: `http://localhost:8080, https://your-app.vercel.app`
+   - Allowed Web Origins: `http://localhost:8080, https://your-app.vercel.app`
+
+4. **Update `auth0-config.js`** with your credentials:
+   ```javascript
+   const auth0Config = {
+       domain: 'YOUR_DOMAIN.auth0.com',
+       clientId: 'YOUR_CLIENT_ID',
+       authorizationParams: {
+           redirect_uri: window.location.origin,
+           scope: 'openid profile email'
+       }
+   };
+   ```
+
+5. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+📖 **For detailed setup instructions, see [AUTH0_SETUP.md](AUTH0_SETUP.md)**
 
 ## Local Development
 
@@ -31,17 +68,26 @@ vercel-landing-page/
    cd vercel-landing-page
    ```
 
-2. **Open in browser:**
-   - Simply open `index.html` in your browser
-   - Or use a local server:
-     ```bash
-     npx serve .
-     ```
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-3. **Make your changes:**
+3. **Configure Auth0:**
+   - Update `auth0-config.js` with your Auth0 credentials
+   - See [AUTH0_SETUP.md](AUTH0_SETUP.md) for detailed instructions
+
+4. **Run local server:**
+   ```bash
+   npx serve .
+   ```
+   Open http://localhost:8080 in your browser
+
+5. **Make your changes:**
    - Edit `index.html` for content
    - Modify `styles.css` for styling
    - Update `script.js` for functionality
+   - Customize `auth.js` for authentication behavior
 
 ## Deploy to Vercel
 

@@ -1,7 +1,7 @@
 {
   "name": "vercel-landing-page",
   "version": "1.0.0",
-  "description": "Modern landing page for Vercel deployment",
+  "description": "Modern landing page with Auth0 authentication for Vercel deployment",
   "main": "index.html",
   "scripts": {
     "dev": "npx serve .",
@@ -10,8 +10,13 @@
   "keywords": [
     "landing-page",
     "vercel",
-    "static-site"
+    "static-site",
+    "auth0",
+    "authentication"
   ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@auth0/auth0-spa-js": "^2.1.3"
+  }
 }
