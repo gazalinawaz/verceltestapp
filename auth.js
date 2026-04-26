@@ -118,14 +118,22 @@ function showError(message) {
     }, 5000);
 }
 
-// Show login button immediately
-document.addEventListener('DOMContentLoaded', () => {
-    // Show login button by default
-    const loginBtn = document.getElementById('loginBtn');
-    if (loginBtn) {
-        loginBtn.style.display = 'inline-block';
+// Wait for Auth0 SDK to load, then initialize
+function waitForAuth0() {
+    if (typeof auth0 !== 'undefined' && auth0.createAuth0Client) {
+        // Show login button
+        const loginBtn = document.getElementById('loginBtn');
+        if (loginBtn) {
+            loginBtn.style.display = 'inline-block';
+        }
+        
+        // Initialize Auth0
+        initAuth0();
+    } else {
+        // SDK not loaded yet, wait and try again
+        setTimeout(waitForAuth0, 100);
     }
-    
-    // Initialize Auth0
-    initAuth0();
-});
+}
+
+// Start waiting for Auth0 SDK when DOM is ready
+document.addEventListener('DOMContentLoaded', waitForAuth0);
