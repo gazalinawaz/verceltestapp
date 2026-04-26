@@ -1,0 +1,17 @@
+{
+  "name": "vercel-landing-page",
+  "version": "1.0.0",
+  "description": "Modern landing page for Vercel deployment",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx serve .",
+    "build": "echo 'No build step required for static site'"
+  },
+  "keywords": [
+    "landing-page",
+    "vercel",
+    "static-site"
+  ],
+  "author": "",
+  "license": "MIT"
+}
