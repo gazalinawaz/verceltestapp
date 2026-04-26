@@ -34,6 +34,14 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// My Courses route (protected)
+app.get('/my-courses', (req, res) => {
+  if (!req.oidc.isAuthenticated()) {
+    return res.redirect('/login');
+  }
+  res.sendFile(path.join(__dirname, 'public', 'my-courses.html'));
+});
+
 // Profile route (protected)
 app.get('/profile', (req, res) => {
   if (!req.oidc.isAuthenticated()) {

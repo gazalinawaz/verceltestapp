@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your enrolled courses">
+    <title>My Courses - Merryweather Academy</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="learning-styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="/" style="text-decoration: none; color: inherit;">
+                    <span class="logo-icon">📚</span>
+                    Merryweather Academy
+                </a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/">Home</a></li>
+                <li><a href="/#courses">Courses</a></li>
+                <li><a href="/#features">Features</a></li>
+                <li><a href="/my-courses" class="active">My Courses</a></li>
+            </ul>
+            <div class="nav-auth">
+                <div id="userProfile" class="user-profile">
+                    <img id="userAvatar" src="" alt="User" class="user-avatar">
+                    <span id="userName"></span>
+                    <button id="logoutBtn" class="btn btn-secondary btn-sm" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- My Courses Section -->
+    <section class="my-courses-section">
+        <div class="container">
+            <h1 class="page-title">My Courses</h1>
+            <p class="page-subtitle">Continue your learning journey</p>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="loading-state">
+                <div class="spinner"></div>
+                <p>Loading your courses...</p>
+            </div>
+
+            <!-- No Access State -->
+            <div id="noAccessState" class="no-access-state" style="display: none;">
+                <div class="empty-state">
+                    <div class="empty-icon">🔒</div>
+                    <h2>No Course Access</h2>
+                    <p>You don't have access to any courses yet. Please contact support or enroll in a course.</p>
+                    <a href="/" class="btn btn-primary">Browse Courses</a>
+                </div>
+            </div>
+
+            <!-- Enrolled Courses -->
+            <div id="enrolledCourses" class="enrolled-courses" style="display: none;">
+                <!-- Courses will be dynamically loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Merryweather Academy. All rights reserved.</p>
+            <div class="social-links">
+                <a href="#" aria-label="Twitter">Twitter</a>
+                <a href="#" aria-label="LinkedIn">LinkedIn</a>
+                <a href="#" aria-label="GitHub">GitHub</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Application Script -->
+    <script src="app.js"></script>
+    <script src="my-courses.js"></script>
+</body>
+</html>
