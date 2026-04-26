@@ -118,5 +118,14 @@ function showError(message) {
     }, 5000);
 }
 
-// Initialize Auth0 when DOM is loaded
-document.addEventListener('DOMContentLoaded', initAuth0);
+// Show login button immediately
+document.addEventListener('DOMContentLoaded', () => {
+    // Show login button by default
+    const loginBtn = document.getElementById('loginBtn');
+    if (loginBtn) {
+        loginBtn.style.display = 'inline-block';
+    }
+    
+    // Initialize Auth0
+    initAuth0();
+});
