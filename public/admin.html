@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Admin Dashboard - Course Management">
+    <title>Admin Dashboard - Merryweather Academy</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="learning-styles.css">
+    <link rel="stylesheet" href="admin-styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="/" style="text-decoration: none; color: inherit;">
+                    <span class="logo-icon">📚</span>
+                    Merryweather Academy
+                </a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/">Home</a></li>
+                <li><a href="/admin" class="active">Admin</a></li>
+                <li><a href="/my-courses">My Courses</a></li>
+            </ul>
+            <div class="nav-auth">
+                <div id="userProfile" class="user-profile">
+                    <img id="userAvatar" src="" alt="User" class="user-avatar">
+                    <span id="userName"></span>
+                    <button id="logoutBtn" class="btn btn-secondary btn-sm" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Admin Dashboard -->
+    <section class="admin-section">
+        <div class="container">
+            <!-- Access Denied State -->
+            <div id="accessDenied" class="access-denied" style="display: none;">
+                <div class="empty-state">
+                    <div class="empty-icon">🚫</div>
+                    <h2>Access Denied</h2>
+                    <p>You don't have permission to access the admin dashboard.</p>
+                    <a href="/" class="btn btn-primary">Go Home</a>
+                </div>
+            </div>
+
+            <!-- Admin Content -->
+            <div id="adminContent" style="display: none;">
+                <h1 class="page-title">Admin Dashboard</h1>
+                <p class="page-subtitle">Manage courses and student enrollments</p>
+
+                <!-- Tabs -->
+                <div class="admin-tabs">
+                    <button class="tab-btn active" onclick="switchTab('courses')">Course Catalog</button>
+                    <button class="tab-btn" onclick="switchTab('create')">Create Course</button>
+                    <button class="tab-btn" onclick="switchTab('enrollments')">Manage Enrollments</button>
+                </div>
+
+                <!-- Course Catalog Tab -->
+                <div id="coursesTab" class="tab-content active">
+                    <div class="section-header">
+                        <h2>Course Catalog</h2>
+                        <button class="btn btn-primary" onclick="switchTab('create')">+ New Course</button>
+                    </div>
+                    <div id="coursesList" class="courses-list">
+                        <!-- Courses will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Create Course Tab -->
+                <div id="createTab" class="tab-content">
+                    <div class="section-header">
+                        <h2>Create New Course</h2>
+                    </div>
+                    <form id="createCourseForm" class="admin-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="courseId">Course ID *</label>
+                                <input type="text" id="courseId" placeholder="e.g., python-basics" required pattern="[a-z0-9-]+" title="Lowercase letters, numbers, and hyphens only">
+                                <small>Lowercase letters, numbers, and hyphens only</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="courseIcon">Icon (Emoji) *</label>
+                                <input type="text" id="courseIcon" placeholder="e.g., 🐍" required maxlength="2">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="courseTitle">Course Title *</label>
+                            <input type="text" id="courseTitle" placeholder="e.g., Python Programming Basics" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="courseDescription">Description *</label>
+                            <textarea id="courseDescription" rows="3" placeholder="Brief description of the course" required></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="courseLevel">Level *</label>
+                                <select id="courseLevel" required>
+                                    <option value="">Select level</option>
+                                    <option value="Beginner">Beginner</option>
+                                    <option value="Intermediate">Intermediate</option>
+                                    <option value="Advanced">Advanced</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="courseDuration">Duration (hours) *</label>
+                                <input type="number" id="courseDuration" placeholder="e.g., 12" required min="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="courseLessons">Number of Lessons *</label>
+                                <input type="number" id="courseLessons" placeholder="e.g., 24" required min="1">
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Create Course</button>
+                            <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Enrollments Tab -->
+                <div id="enrollmentsTab" class="tab-content">
+                    <div class="section-header">
+                        <h2>Manage Student Enrollments</h2>
+                    </div>
+                    
+                    <div class="enrollment-form">
+                        <h3>Grant Course Access</h3>
+                        <form id="enrollmentForm" class="admin-form">
+                            <div class="form-group">
+                                <label for="studentEmail">Student Email *</label>
+                                <input type="email" id="studentEmail" placeholder="student@example.com" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="enrollCourses">Select Courses *</label>
+                                <div id="courseCheckboxes" class="checkbox-group">
+                                    <!-- Course checkboxes will be loaded here -->
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Grant Access</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="enrollment-info">
+                        <h3>How to Grant Course Access</h3>
+                        <ol>
+                            <li>Enter the student's email address</li>
+                            <li>Select the courses you want to grant access to</li>
+                            <li>Click "Grant Access" to update their permissions</li>
+                            <li>Student must log out and log back in to see new courses</li>
+                        </ol>
+                        <p><strong>Note:</strong> This updates the user's app_metadata in Auth0.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Merryweather Academy. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Application Script -->
+    <script src="app.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

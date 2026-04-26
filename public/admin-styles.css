@@ -1,0 +1,288 @@
+/* Admin Dashboard Styles */
+
+.admin-section {
+    padding: 8rem 2rem 4rem;
+    min-height: 100vh;
+    background: var(--light-color);
+}
+
+.access-denied {
+    padding: 4rem 2rem;
+}
+
+/* Admin Tabs */
+.admin-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.tab-btn {
+    padding: 1rem 2rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--text-color);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+    color: var(--primary-color);
+}
+
+.tab-btn.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Section Header */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.section-header h2 {
+    color: var(--dark-color);
+    font-size: 1.8rem;
+}
+
+/* Courses List */
+.courses-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.admin-course-card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.admin-course-card .course-icon-large {
+    font-size: 3rem;
+    flex-shrink: 0;
+}
+
+.course-details {
+    flex: 1;
+}
+
+.course-header-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.course-header-row h3 {
+    color: var(--dark-color);
+    margin: 0;
+}
+
+.course-id {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    opacity: 0.7;
+    margin-bottom: 0.5rem;
+}
+
+.course-id code {
+    background: var(--light-color);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+}
+
+.course-details p {
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.course-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Admin Form */
+.admin-form {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    color: var(--dark-color);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.form-group small {
+    display: block;
+    color: var(--text-color);
+    opacity: 0.7;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+/* Checkbox Group */
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 1rem;
+    background: var(--light-color);
+    border-radius: 8px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: background 0.2s ease;
+}
+
+.checkbox-label:hover {
+    background: white;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.checkbox-label span {
+    color: var(--dark-color);
+    font-size: 1rem;
+}
+
+/* Enrollment Info */
+.enrollment-form {
+    margin-bottom: 3rem;
+}
+
+.enrollment-info {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.enrollment-info h3 {
+    color: var(--dark-color);
+    margin-bottom: 1rem;
+}
+
+.enrollment-info ol {
+    margin-left: 1.5rem;
+    color: var(--text-color);
+    line-height: 1.8;
+}
+
+.enrollment-info p {
+    margin-top: 1rem;
+    color: var(--text-color);
+}
+
+/* Danger Button */
+.btn-danger {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .admin-course-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .course-actions {
+        flex-direction: row;
+        width: 100%;
+    }
+    
+    .course-actions button {
+        flex: 1;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .admin-tabs {
+        overflow-x: auto;
+    }
+    
+    .tab-btn {
+        white-space: nowrap;
+    }
+}

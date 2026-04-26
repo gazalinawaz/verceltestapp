@@ -42,6 +42,14 @@ app.get('/my-courses', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'my-courses.html'));
 });
 
+// Admin route (protected - admin only)
+app.get('/admin', (req, res) => {
+  if (!req.oidc.isAuthenticated()) {
+    return res.redirect('/login');
+  }
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
 // Profile route (protected)
 app.get('/profile', (req, res) => {
   if (!req.oidc.isAuthenticated()) {
@@ -55,6 +63,67 @@ app.get('/api/auth/status', (req, res) => {
   res.json({
     isAuthenticated: req.oidc.isAuthenticated(),
     user: req.oidc.isAuthenticated() ? req.oidc.user : null
+  });
+});
+
+// Middleware to check admin role
+function requireAdmin(req, res, next) {
+  if (!req.oidc.isAuthenticated()) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  
+  const namespace = 'https://verceltestapp-five.vercel.app';
+  const userRoles = req.oidc.user[`${namespace}/roles`] || [];
+  
+  if (!userRoles.includes('admin')) {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
+  
+  next();
+}
+
+// Admin API: Create course
+app.post('/api/admin/courses', requireAdmin, express.json(), (req, res) => {
+  const { id, title, icon, description, level, duration, lessons } = req.body;
+  
+  // Validate required fields
+  if (!id || !title || !icon || !description || !level || !duration || !lessons) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+  
+  // In a real app, save to database
+  // For now, just acknowledge receipt
+  console.log('Course created:', req.body);
+  
+  res.json({ 
+    success: true, 
+    message: 'Course created successfully',
+    course: req.body
+  });
+});
+
+// Admin API: Grant course access to user
+app.post('/api/admin/enroll', requireAdmin, express.json(), async (req, res) => {
+  const { email, courses } = req.body;
+  
+  if (!email || !courses || !Array.isArray(courses)) {
+    return res.status(400).json({ error: 'Invalid request. Email and courses array required.' });
+  }
+  
+  // In a real app, you would:
+  // 1. Find user by email in Auth0
+  // 2. Update their app_metadata with courses array
+  // 3. Use Auth0 Management API
+  
+  // For demo purposes, return success
+  console.log(`Granting access to ${email} for courses:`, courses);
+  
+  res.json({
+    success: true,
+    message: `Access granted to ${courses.length} course(s) for ${email}`,
+    email: email,
+    courses: courses,
+    note: 'In production, this would update Auth0 app_metadata via Management API'
   });
 });
 
