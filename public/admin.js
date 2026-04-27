@@ -377,24 +377,70 @@ function resetForm() {
     console.log('Form reset');
 }
 
-// Edit course (placeholder)
+// Edit course
 function editCourse(courseId) {
+    console.log('📝 Editing course:', courseId);
+    
     const courses = getCoursesCatalog();
     const course = courses.find(c => c.id === courseId);
     
-    if (!course) return;
+    if (!course) {
+        console.error('Course not found:', courseId);
+        return;
+    }
     
-    // Populate form
-    document.getElementById('courseId').value = course.id;
-    document.getElementById('courseTitle').value = course.title;
-    document.getElementById('courseIcon').value = course.icon;
-    document.getElementById('courseDescription').value = course.description;
-    document.getElementById('courseLevel').value = course.level;
-    document.getElementById('courseDuration').value = course.duration;
-    document.getElementById('courseLessons').value = course.lessons;
+    // Create a full course draft for the course builder
+    // Check if there's already a draft with full data
+    const existingDraft = localStorage.getItem('courseDraft');
+    let fullCourseDraft;
     
-    // Switch to create tab
-    switchTab('create');
+    if (existingDraft) {
+        try {
+            const draft = JSON.parse(existingDraft);
+            if (draft.id === courseId) {
+                // Use existing draft if it's for the same course
+                fullCourseDraft = draft;
+                console.log('✅ Using existing draft');
+            } else {
+                // Create new draft from catalog data
+                fullCourseDraft = createCourseDraftFromCatalog(course);
+            }
+        } catch (e) {
+            fullCourseDraft = createCourseDraftFromCatalog(course);
+        }
+    } else {
+        fullCourseDraft = createCourseDraftFromCatalog(course);
+    }
+    
+    // Save draft to localStorage
+    localStorage.setItem('courseDraft', JSON.stringify(fullCourseDraft));
+    console.log('💾 Course draft saved for editing');
+    
+    // Redirect to course builder
+    window.location.href = '/course-builder';
+}
+
+// Helper function to create a full course draft from catalog data
+function createCourseDraftFromCatalog(catalogCourse) {
+    return {
+        id: catalogCourse.id,
+        title: catalogCourse.title,
+        subtitle: catalogCourse.description || '',
+        description: catalogCourse.description || '',
+        category: 'development',
+        objectives: [],
+        thumbnail: null,
+        level: catalogCourse.level || 'Beginner',
+        language: 'English',
+        icon: catalogCourse.icon || '📚',
+        lessons: [], // Will be populated in course builder
+        pricing: { type: 'free', price: 0 },
+        settings: {
+            certificate: false,
+            discussions: false,
+            published: false
+        }
+    };
 }
 
 // Delete course
