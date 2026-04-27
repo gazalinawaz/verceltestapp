@@ -82,19 +82,43 @@ app.get('/api/auth/status', async (req, res) => {
   
   // Get access token from session
   let accessToken = null;
+  let tokenError = null;
+  let idToken = null;
+  let claims = null;
+  
   try {
+    // Try to get access token
     accessToken = await req.oidc.accessToken();
     console.log('🔑 Access Token Retrieved:', accessToken ? 'YES' : 'NO');
     console.log('📊 Token length:', accessToken ? accessToken.length : 0);
+    
+    // Get ID token for comparison
+    idToken = req.oidc.idToken;
+    console.log('🆔 ID Token exists:', !!idToken);
+    
+    // Get token claims
+    claims = req.oidc.idTokenClaims;
+    console.log('📋 Token claims audience (aud):', claims?.aud);
+    console.log('📋 Token claims issuer (iss):', claims?.iss);
+    
   } catch (error) {
     console.error('❌ Error getting access token:', error.message);
+    console.error('❌ Full error:', error);
+    tokenError = error.message;
   }
   
   res.json({
     isAuthenticated: true,
     user: req.oidc.user,
     hasAccessToken: !!accessToken,
-    accessTokenPreview: accessToken ? accessToken.substring(0, 50) + '...' : null
+    accessTokenPreview: accessToken ? accessToken.substring(0, 50) + '...' : null,
+    hasIdToken: !!idToken,
+    tokenError: tokenError,
+    debug: {
+      audience: claims?.aud,
+      issuer: claims?.iss,
+      configuredAudience: 'https://jade-swan-94501.cic-demo-platform.auth0app.com/api/v2/'
+    }
   });
 });
 
