@@ -473,18 +473,17 @@ function saveLesson() {
     
     if (type === 'video') {
         lesson.videoUrl = document.getElementById('videoUrl').value;
-    } else if (type === 'article') {
+    } else if (type === 'article' && articleEditor) {
         lesson.content = articleEditor.root.innerHTML;
     }
     
-    const section = currentCourse.sections.find(s => s.id === currentSection);
-    
-    if (currentLesson) {
+    if (currentLessonId) {
         // Update existing lesson
-        const index = section.lessons.findIndex(l => l.id === currentLesson.id);
-        section.lessons[index] = lesson;
+        const index = currentCourse.lessons.findIndex(l => l.id === currentLessonId);
+        currentCourse.lessons[index] = lesson;
     } else {
         // Add new lesson
+        currentCourse.lessons.push(lesson);
         section.lessons.push(lesson);
     }
     
@@ -957,8 +956,8 @@ function updatePreview() {
         <div class="preview-meta">
             <span>📊 ${document.getElementById('courseLevel').value}</span>
             <span>🌐 ${document.getElementById('courseLanguage').value}</span>
-            <span>📚 ${currentCourse.sections.length} sections</span>
-            <span>🎥 ${currentCourse.sections.reduce((sum, s) => sum + s.lessons.length, 0)} lessons</span>
+            <span>📚 ${currentCourse.lessons.length} lessons</span>
+            <span>🎥 ${currentCourse.lessons.reduce((sum, l) => sum + (l.chapters?.length || 0), 0)} chapters</span>
         </div>
         ${objectives.length > 0 ? `
             <div class="preview-objectives">
@@ -997,8 +996,8 @@ function loadDraftCourse() {
                 displayThumbnail(null, currentCourse.thumbnail);
             }
             
-            renderSections();
-            updateSectionCount();
+            renderLessons();
+            updateLessonCount();
         } catch (e) {
             console.error('Error loading draft:', e);
         }
