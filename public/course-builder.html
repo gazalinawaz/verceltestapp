@@ -6,8 +6,7 @@
     <title>Course Builder - Merryweather Academy</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="learning-styles.css">
-    <link rel="stylesheet" href="admin-styles.css">
-    <link rel="stylesheet" href="course-builder.css">
+    <link rel="stylesheet" href="course-builder-enhanced.css">
     <!-- Quill Rich Text Editor -->
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 </head>
@@ -300,12 +299,116 @@
                     <div id="chaptersContainer" class="chapters-container">
                         <!-- Chapters will be rendered here -->
                     </div>
-                    <button type="button" class="btn btn-secondary btn-sm" onclick="addChapter()" style="margin-top: 1rem;">+ Add Chapter</button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="window.addChapter()" style="margin-top: 1rem;">+ Add Chapter</button>
                 </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeLessonModal()">Cancel</button>
                 <button class="btn btn-primary" onclick="saveLesson()">Save Lesson</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chapter Editor Modal -->
+    <div id="chapterModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>Edit Chapter</h3>
+                <button class="modal-close" onclick="window.closeChapterModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-section">
+                    <label class="form-label">Chapter Title *</label>
+                    <input type="text" id="chapterTitle" class="form-input" placeholder="e.g., Introduction to Variables">
+                </div>
+
+                <div class="form-section">
+                    <label class="form-label">Chapter Type *</label>
+                    <select id="chapterType" class="form-input" onchange="window.updateChapterTypeFields()">
+                        <option value="video">🎥 Video</option>
+                        <option value="text">📄 Text/Article</option>
+                        <option value="image">🖼️ Image</option>
+                        <option value="code">💻 Code</option>
+                        <option value="quiz">❓ Quiz</option>
+                    </select>
+                </div>
+
+                <!-- Video Fields -->
+                <div id="videoChapterFields" class="chapter-type-fields">
+                    <div class="form-section">
+                        <label class="form-label">Video URL</label>
+                        <input type="url" id="chapterVideoUrl" class="form-input" placeholder="https://youtube.com/watch?v=... or https://vimeo.com/...">
+                        <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">YouTube, Vimeo, or direct video URL</small>
+                    </div>
+                </div>
+
+                <!-- Text Fields -->
+                <div id="textChapterFields" class="chapter-type-fields" style="display: none;">
+                    <div class="form-section">
+                        <label class="form-label">Content</label>
+                        <div id="chapterTextEditor" class="rich-editor"></div>
+                        <div style="margin-top: 1rem;">
+                            <label class="form-label">Add Images</label>
+                            <div class="image-upload-area" id="chapterImageUpload" tabindex="0">
+                                <div class="upload-placeholder">
+                                    <span class="upload-icon">🖼️</span>
+                                    <p>Click to upload or paste images (Ctrl+V)</p>
+                                    <small>Images will be inserted into the editor</small>
+                                </div>
+                                <input type="file" id="chapterImageInput" accept="image/*" multiple style="display: none;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image Fields -->
+                <div id="imageChapterFields" class="chapter-type-fields" style="display: none;">
+                    <div class="form-section">
+                        <label class="form-label">Upload Image</label>
+                        <div class="image-upload-area" id="chapterSingleImageUpload" tabindex="0">
+                            <div class="upload-placeholder">
+                                <span class="upload-icon">🖼️</span>
+                                <p>Click to upload or paste screenshot</p>
+                                <small>Recommended: High resolution</small>
+                            </div>
+                            <input type="file" id="chapterSingleImageInput" accept="image/*" style="display: none;">
+                            <img id="chapterImagePreview" style="display: none; max-width: 100%; border-radius: 8px; margin-top: 1rem;">
+                        </div>
+                    </div>
+                    <div class="form-section">
+                        <label class="form-label">Image Caption (optional)</label>
+                        <input type="text" id="chapterImageCaption" class="form-input" placeholder="Describe the image">
+                    </div>
+                </div>
+
+                <!-- Code Fields -->
+                <div id="codeChapterFields" class="chapter-type-fields" style="display: none;">
+                    <div class="form-section">
+                        <label class="form-label">Programming Language</label>
+                        <select id="chapterCodeLanguage" class="form-input">
+                            <option value="javascript">JavaScript</option>
+                            <option value="python">Python</option>
+                            <option value="java">Java</option>
+                            <option value="csharp">C#</option>
+                            <option value="html">HTML</option>
+                            <option value="css">CSS</option>
+                            <option value="sql">SQL</option>
+                        </select>
+                    </div>
+                    <div class="form-section">
+                        <label class="form-label">Code</label>
+                        <textarea id="chapterCode" class="form-input" rows="10" placeholder="// Your code here" style="font-family: var(--font-mono);"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <label class="form-label">Duration (minutes) *</label>
+                    <input type="number" id="chapterDuration" class="form-input" placeholder="5" min="1" value="5">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="window.closeChapterModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="window.saveChapter()">Save Chapter</button>
             </div>
         </div>
     </div>

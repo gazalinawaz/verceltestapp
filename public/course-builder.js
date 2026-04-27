@@ -506,12 +506,11 @@ function openLessonEditor(lesson) {
 }
 
 function renderChapters(chapters) {
-    // For now, simple list - will enhance later
     const container = document.getElementById('chaptersContainer');
     if (!container) return;
     
     if (chapters.length === 0) {
-        container.innerHTML = '<p style="color: var(--text-color); opacity: 0.7; padding: 1rem;">No chapters yet. Click "+ Add Chapter" to get started.</p>';
+        container.innerHTML = '<p style="color: var(--text-secondary); opacity: 0.7; padding: 1rem; text-align: center;">No chapters yet. Click "+ Add Chapter" to get started.</p>';
         return;
     }
     
@@ -523,7 +522,8 @@ function renderChapters(chapters) {
                 <div class="chapter-meta">${chapter.type} • ${chapter.duration || 5} min</div>
             </div>
             <div class="chapter-actions">
-                <button class="btn-icon" onclick="deleteChapter(${index})">🗑️</button>
+                <button class="btn-icon" onclick="window.editChapter(${index})" title="Edit">✏️</button>
+                <button class="btn-icon" onclick="window.deleteChapter(${index})" title="Delete">🗑️</button>
             </div>
         </div>
     `).join('');
@@ -564,6 +564,354 @@ window.closeLessonModal = function() {
     if (modal) {
         modal.classList.remove('active');
     }
+}
+
+// Chapter Management
+window.addChapter = function() {
+    console.log('Adding new chapter...');
+    currentChapterId = null;
+    
+    // Reset chapter form
+    document.getElementById('chapterTitle').value = '';
+    document.getElementById('chapterType').value = 'video';
+    document.getElementById('chapterDuration').value = '5';
+    document.getElementById('chapterVideoUrl').value = '';
+    document.getElementById('chapterCode').value = '';
+    document.getElementById('chapterImageCaption').value = '';
+    
+    // Initialize chapter text editor if not already done
+    initializeChapterEditor();
+    
+    updateChapterTypeFields();
+    openChapterModal();
+}
+
+window.editChapter = function(chapterIndex) {
+    console.log('Editing chapter:', chapterIndex);
+    const lesson = currentCourse.lessons.find(l => l.id === currentLessonId);
+    if (!lesson || !lesson.chapters) return;
+    
+    const chapter = lesson.chapters[chapterIndex];
+    if (!chapter) return;
+    
+    currentChapterId = chapterIndex;
+    
+    // Populate form
+    document.getElementById('chapterTitle').value = chapter.title || '';
+    document.getElementById('chapterType').value = chapter.type || 'video';
+    document.getElementById('chapterDuration').value = chapter.duration || 5;
+    
+    // Type-specific fields
+    if (chapter.type === 'video') {
+        document.getElementById('chapterVideoUrl').value = chapter.content?.url || '';
+    } else if (chapter.type === 'text') {
+        initializeChapterEditor();
+        if (chapterEditor && chapter.content?.html) {
+            chapterEditor.root.innerHTML = chapter.content.html;
+        }
+    } else if (chapter.type === 'image') {
+        document.getElementById('chapterImageCaption').value = chapter.content?.caption || '';
+        if (chapter.content?.imageData) {
+            const preview = document.getElementById('chapterImagePreview');
+            preview.src = chapter.content.imageData;
+            preview.style.display = 'block';
+        }
+    } else if (chapter.type === 'code') {
+        document.getElementById('chapterCodeLanguage').value = chapter.content?.language || 'javascript';
+        document.getElementById('chapterCode').value = chapter.content?.code || '';
+    }
+    
+    updateChapterTypeFields();
+    openChapterModal();
+}
+
+window.deleteChapter = function(chapterIndex) {
+    if (!confirm('Delete this chapter?')) return;
+    
+    const lesson = currentCourse.lessons.find(l => l.id === currentLessonId);
+    if (!lesson || !lesson.chapters) return;
+    
+    lesson.chapters.splice(chapterIndex, 1);
+    renderChapters(lesson.chapters);
+    autoSave();
+}
+
+function openChapterModal() {
+    const modal = document.getElementById('chapterModal');
+    if (modal) {
+        modal.classList.add('active');
+        setupChapterImageUpload();
+    }
+}
+
+window.closeChapterModal = function() {
+    const modal = document.getElementById('chapterModal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
+
+window.updateChapterTypeFields = function() {
+    const type = document.getElementById('chapterType').value;
+    
+    // Hide all type-specific fields
+    document.querySelectorAll('.chapter-type-fields').forEach(el => {
+        el.style.display = 'none';
+    });
+    
+    // Show relevant fields
+    const fieldMap = {
+        'video': 'videoChapterFields',
+        'text': 'textChapterFields',
+        'image': 'imageChapterFields',
+        'code': 'codeChapterFields'
+    };
+    
+    const fieldId = fieldMap[type];
+    if (fieldId) {
+        const element = document.getElementById(fieldId);
+        if (element) {
+            element.style.display = 'block';
+        }
+    }
+    
+    // Initialize text editor if text type is selected
+    if (type === 'text') {
+        initializeChapterEditor();
+    }
+}
+
+let chapterEditor = null;
+
+function initializeChapterEditor() {
+    if (chapterEditor) return; // Already initialized
+    
+    const editorEl = document.querySelector('#chapterTextEditor');
+    if (!editorEl) {
+        console.warn('Chapter text editor element not found');
+        return;
+    }
+    
+    if (typeof Quill === 'undefined') {
+        console.error('Quill not loaded');
+        return;
+    }
+    
+    chapterEditor = new Quill('#chapterTextEditor', {
+        theme: 'snow',
+        placeholder: 'Write your chapter content...',
+        modules: {
+            toolbar: [
+                ['bold', 'italic', 'underline', 'strike'],
+                ['blockquote', 'code-block'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'header': [1, 2, 3, false] }],
+                [{ 'color': [] }, { 'background': [] }],
+                ['link', 'image'],
+                ['clean']
+            ]
+        }
+    });
+    
+    console.log('Chapter text editor initialized');
+}
+
+function setupChapterImageUpload() {
+    // Text chapter image upload
+    const textImageUpload = document.getElementById('chapterImageUpload');
+    const textImageInput = document.getElementById('chapterImageInput');
+    
+    if (textImageUpload && textImageInput) {
+        // Make focusable
+        textImageUpload.setAttribute('tabindex', '0');
+        
+        // Click to upload
+        textImageUpload.onclick = (e) => {
+            if (e.target.tagName !== 'INPUT') {
+                textImageInput.click();
+                textImageUpload.focus();
+            }
+        };
+        
+        // File input change
+        textImageInput.onchange = (e) => {
+            handleChapterImageUpload(e.target.files);
+        };
+        
+        // Paste support
+        textImageUpload.onpaste = (e) => {
+            console.log('Paste in text chapter image area');
+            handleChapterImagePaste(e);
+        };
+    }
+    
+    // Single image chapter upload
+    const singleImageUpload = document.getElementById('chapterSingleImageUpload');
+    const singleImageInput = document.getElementById('chapterSingleImageInput');
+    
+    if (singleImageUpload && singleImageInput) {
+        singleImageUpload.setAttribute('tabindex', '0');
+        
+        singleImageUpload.onclick = (e) => {
+            if (e.target.tagName !== 'INPUT') {
+                singleImageInput.click();
+                singleImageUpload.focus();
+            }
+        };
+        
+        singleImageInput.onchange = (e) => {
+            if (e.target.files[0]) {
+                displayChapterSingleImage(e.target.files[0]);
+            }
+        };
+        
+        singleImageUpload.onpaste = (e) => {
+            console.log('Paste in single image chapter area');
+            handleChapterSingleImagePaste(e);
+        };
+    }
+}
+
+function handleChapterImageUpload(files) {
+    if (!chapterEditor) {
+        console.error('Chapter editor not initialized');
+        return;
+    }
+    
+    Array.from(files).forEach(file => {
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                // Insert image into Quill editor
+                const range = chapterEditor.getSelection(true);
+                chapterEditor.insertEmbed(range.index, 'image', e.target.result);
+                chapterEditor.setSelection(range.index + 1);
+                console.log('Image inserted into chapter editor');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
+function handleChapterImagePaste(e) {
+    console.log('=== CHAPTER IMAGE PASTE ===' );
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!e.clipboardData || !e.clipboardData.items) {
+        console.log('No clipboard data');
+        return;
+    }
+    
+    const items = e.clipboardData.items;
+    console.log('Clipboard items:', items.length);
+    
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.kind === 'file' && item.type.startsWith('image/')) {
+            console.log('✓ Image found in clipboard');
+            const file = item.getAsFile();
+            if (file && chapterEditor) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const range = chapterEditor.getSelection(true);
+                    chapterEditor.insertEmbed(range.index, 'image', e.target.result);
+                    chapterEditor.setSelection(range.index + 1);
+                    console.log('✓ Pasted image inserted into editor');
+                };
+                reader.readAsDataURL(file);
+                return;
+            }
+        }
+    }
+}
+
+function displayChapterSingleImage(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const preview = document.getElementById('chapterImagePreview');
+        const placeholder = document.querySelector('#chapterSingleImageUpload .upload-placeholder');
+        if (preview && placeholder) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            placeholder.style.display = 'none';
+        }
+    };
+    reader.readAsDataURL(file);
+}
+
+function handleChapterSingleImagePaste(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!e.clipboardData || !e.clipboardData.items) return;
+    
+    const items = e.clipboardData.items;
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.kind === 'file' && item.type.startsWith('image/')) {
+            const file = item.getAsFile();
+            if (file) {
+                displayChapterSingleImage(file);
+                return;
+            }
+        }
+    }
+}
+
+window.saveChapter = function() {
+    const title = document.getElementById('chapterTitle').value.trim();
+    const type = document.getElementById('chapterType').value;
+    const duration = parseInt(document.getElementById('chapterDuration').value) || 5;
+    
+    if (!title) {
+        alert('Please enter a chapter title');
+        return;
+    }
+    
+    const lesson = currentCourse.lessons.find(l => l.id === currentLessonId);
+    if (!lesson) return;
+    
+    if (!lesson.chapters) {
+        lesson.chapters = [];
+    }
+    
+    const chapter = {
+        id: currentChapterId !== null ? lesson.chapters[currentChapterId].id : `chapter-${Date.now()}`,
+        title,
+        type,
+        duration,
+        content: {}
+    };
+    
+    // Type-specific content
+    if (type === 'video') {
+        chapter.content.url = document.getElementById('chapterVideoUrl').value;
+    } else if (type === 'text') {
+        chapter.content.html = chapterEditor ? chapterEditor.root.innerHTML : '';
+        chapter.content.readTime = Math.ceil(chapterEditor.getText().split(/\s+/).length / 200);
+    } else if (type === 'image') {
+        const preview = document.getElementById('chapterImagePreview');
+        chapter.content.imageData = preview.src;
+        chapter.content.caption = document.getElementById('chapterImageCaption').value;
+    } else if (type === 'code') {
+        chapter.content.language = document.getElementById('chapterCodeLanguage').value;
+        chapter.content.code = document.getElementById('chapterCode').value;
+    }
+    
+    // Add or update chapter
+    if (currentChapterId !== null) {
+        lesson.chapters[currentChapterId] = chapter;
+    } else {
+        lesson.chapters.push(chapter);
+    }
+    
+    renderChapters(lesson.chapters);
+    renderLessons(); // Update lesson card to show new chapter count
+    closeChapterModal();
+    autoSave();
+    
+    console.log('Chapter saved:', chapter);
 }
 
 // Helper function to escape HTML
