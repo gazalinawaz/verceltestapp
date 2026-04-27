@@ -1,5 +1,52 @@
 // Admin Dashboard JavaScript
 
+// Generate unique course ID from title
+function generateCourseId(title) {
+    // Convert title to lowercase, remove special chars, replace spaces with hyphens
+    let baseId = title
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .substring(0, 50);
+    
+    // Get existing courses to find next sequence number
+    const courses = getCoursesCatalog();
+    const existingIds = courses.map(c => c.id);
+    
+    // If base ID doesn't exist, use it
+    if (!existingIds.includes(baseId)) {
+        return baseId;
+    }
+    
+    // Find next available sequence number
+    let sequence = 1;
+    let uniqueId = `${baseId}-${sequence}`;
+    
+    while (existingIds.includes(uniqueId)) {
+        sequence++;
+        uniqueId = `${baseId}-${sequence}`;
+    }
+    
+    return uniqueId;
+}
+
+// Update course ID preview as user types title
+function updateCourseIdPreview() {
+    const titleInput = document.getElementById('courseTitle');
+    const idInput = document.getElementById('courseId');
+    
+    if (titleInput && idInput && titleInput.value.trim()) {
+        const generatedId = generateCourseId(titleInput.value.trim());
+        idInput.value = generatedId;
+        idInput.style.color = '#326891';
+        idInput.style.fontWeight = '600';
+    } else if (idInput) {
+        idInput.value = '';
+        idInput.placeholder = 'Will be generated automatically...';
+    }
+}
+
 // Check admin access on page load
 async function checkAdminAccess() {
     try {
@@ -69,28 +116,29 @@ function loadCourses() {
             <div class="empty-state">
                 <p>No courses in catalog yet. Create your first course!</p>
             </div>
-        `;
         return;
     }
     
-    coursesList.innerHTML = courses.map(course => `
-        <div class="admin-course-card">
-            <div class="course-icon-large">${course.icon}</div>
-            <div class="course-details">
-                <div class="course-header-row">
-                    <h3>${course.title}</h3>
-                    <span class="course-badge">${course.level}</span>
-                </div>
-                <p class="course-id">ID: <code>${course.id}</code></p>
-                <p>${course.description}</p>
-                <div class="course-meta">
-                    <span>⏱️ ${course.duration} hours</span>
-                    <span>📚 ${course.lessons} lessons</span>
-                </div>
+    container.innerHTML = courses.map(course => `
+        <div class="course-card">
+            <div class="course-icon">${course.icon}</div>
+            <h3>${course.title}</h3>
+            <p>${course.description}</p>
+            <div class="course-meta">
+                <span>📊 ${course.level}</span>
+                <span>⏱️ ${course.duration}h</span>
+                <span>📖 ${course.lessons} lessons</span>
+            </div>
+            <div style="margin: 1rem 0; padding: 0.75rem; background: #f4f4f4; border-radius: 4px;">
+                <strong>Course URL:</strong><br>
+                <a href="/course.html?id=${course.id}" target="_blank" style="color: #326891; font-family: monospace; font-size: 0.9rem;">
+                    /course?id=${course.id}
+                </a>
             </div>
             <div class="course-actions">
-                <button class="btn btn-secondary btn-sm" onclick="editCourse('${course.id}')">Edit</button>
-                <button class="btn btn-danger btn-sm" onclick="deleteCourse('${course.id}')">Delete</button>
+                <button class="btn btn-sm btn-primary" onclick="window.open('/course.html?id=${course.id}', '_blank')">View</button>
+                <button class="btn btn-sm btn-primary" onclick="editCourse('${course.id}')">Edit</button>
+                <button class="btn btn-sm btn-danger" onclick="deleteCourse('${course.id}')">Delete</button>
             </div>
         </div>
     `).join('');
@@ -157,13 +205,26 @@ document.addEventListener('DOMContentLoaded', () => {
     checkAuthStatus();
     checkAdminAccess();
     
+    // Add event listener to course title for auto-generating ID
+    const courseTitleInput = document.getElementById('courseTitle');
+    if (courseTitleInput) {
+        courseTitleInput.addEventListener('input', updateCourseIdPreview);
+    }
+    
     const form = document.getElementById('createCourseForm');
     if (form) {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            // Generate course ID if not already set
+            let courseId = document.getElementById('courseId').value.trim();
+            if (!courseId) {
+                courseId = generateCourseId(document.getElementById('courseTitle').value.trim());
+                document.getElementById('courseId').value = courseId;
+            }
+            
             const courseData = {
-                id: document.getElementById('courseId').value.trim(),
+                id: courseId,
                 title: document.getElementById('courseTitle').value.trim(),
                 icon: document.getElementById('courseIcon').value.trim(),
                 description: document.getElementById('courseDescription').value.trim(),
@@ -287,11 +348,6 @@ function editCourse(courseId) {
     document.getElementById('courseLevel').value = course.level;
     document.getElementById('courseDuration').value = course.duration;
     document.getElementById('courseLessons').value = course.lessons;
-    
-    // Make ID field readonly when editing (can't change existing course ID)
-    document.getElementById('courseId').setAttribute('readonly', true);
-    document.getElementById('courseId').style.backgroundColor = '#f4f4f4';
-    document.getElementById('courseId').title = 'Course ID cannot be changed after creation';
     
     // Switch to create tab
     switchTab('create');

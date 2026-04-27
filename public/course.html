@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Details - Merryweather Academy</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="learning-styles.css">
+    
+    <!-- NYTimes Color Override -->
+    <style>
+        :root {
+            --primary: #326891 !important;
+            --primary-dark: #1a4d6d !important;
+            --text-primary: #121212 !important;
+            --text-secondary: #333333 !important;
+            --bg-secondary: #fafafa !important;
+        }
+        
+        .course-hero {
+            background: linear-gradient(135deg, #326891 0%, #1a4d6d 100%);
+            color: white;
+            padding: 4rem 0;
+            margin-bottom: 3rem;
+        }
+        
+        .course-header {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .course-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .course-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: white;
+        }
+        
+        .course-meta {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .course-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem 4rem;
+        }
+        
+        .course-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 3rem;
+            margin-top: 2rem;
+        }
+        
+        .course-description {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .course-sidebar {
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+        
+        .enrollment-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .enroll-btn {
+            width: 100%;
+            padding: 1rem;
+            background: #326891;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        
+        .enroll-btn:hover {
+            background: #1a4d6d;
+        }
+        
+        .course-lessons {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-top: 2rem;
+        }
+        
+        .lesson-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e8e8e8;
+        }
+        
+        .lesson-item:last-child {
+            border-bottom: none;
+        }
+        
+        @media (max-width: 768px) {
+            .course-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="/" style="text-decoration: none; color: inherit;">
+                    <span class="logo-icon">📚</span>
+                    Merryweather Academy
+                </a>
+            </div>
+            <div class="nav-menu">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/my-courses" class="nav-link">My Courses</a>
+                <div id="authButtons"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Course Hero -->
+    <div class="course-hero">
+        <div class="course-header">
+            <div class="course-icon" id="courseIcon">📚</div>
+            <h1 class="course-title" id="courseTitle">Loading...</h1>
+            <p id="courseDescription" style="font-size: 1.2rem; opacity: 0.9;"></p>
+            <div class="course-meta">
+                <div class="meta-item">
+                    <span>📊</span>
+                    <span id="courseLevel">Beginner</span>
+                </div>
+                <div class="meta-item">
+                    <span>⏱️</span>
+                    <span id="courseDuration">0 hours</span>
+                </div>
+                <div class="meta-item">
+                    <span>📖</span>
+                    <span id="courseLessons">0 lessons</span>
+                </div>
+                <div class="meta-item">
+                    <span>🔗</span>
+                    <span id="courseIdDisplay" style="font-family: monospace; opacity: 0.8;"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course Content -->
+    <div class="course-content">
+        <div class="course-grid">
+            <div>
+                <div class="course-description">
+                    <h2>About This Course</h2>
+                    <div id="courseFullDescription"></div>
+                </div>
+
+                <div class="course-lessons">
+                    <h2>Course Content</h2>
+                    <div id="lessonsContainer">
+                        <p style="text-align: center; color: #6f6f6f;">No lessons available yet.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="course-sidebar">
+                <div class="enrollment-card">
+                    <h3>Ready to Start?</h3>
+                    <p id="enrollmentStatus">Check your enrollment status</p>
+                    <button class="enroll-btn" id="enrollBtn" onclick="handleEnrollment()">
+                        Start Learning
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Get course ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const courseId = urlParams.get('id');
+
+        if (!courseId) {
+            document.getElementById('courseTitle').textContent = 'Course Not Found';
+            document.getElementById('courseDescription').textContent = 'No course ID provided in URL';
+        } else {
+            loadCourseDetails(courseId);
+        }
+
+        function loadCourseDetails(courseId) {
+            // Get course from catalog
+            const catalog = JSON.parse(localStorage.getItem('coursesCatalog') || '[]');
+            const course = catalog.find(c => c.id === courseId);
+
+            if (!course) {
+                document.getElementById('courseTitle').textContent = 'Course Not Found';
+                document.getElementById('courseDescription').textContent = `Course "${courseId}" does not exist`;
+                return;
+            }
+
+            // Populate course details
+            document.getElementById('courseIcon').textContent = course.icon || '📚';
+            document.getElementById('courseTitle').textContent = course.title;
+            document.getElementById('courseDescription').textContent = course.description;
+            document.getElementById('courseLevel').textContent = course.level || 'Beginner';
+            document.getElementById('courseDuration').textContent = `${course.duration || 0} hours`;
+            document.getElementById('courseLessons').textContent = `${course.lessons || 0} lessons`;
+            document.getElementById('courseIdDisplay').textContent = course.id;
+            document.getElementById('courseFullDescription').innerHTML = `<p>${course.description}</p>`;
+
+            // Update page title
+            document.title = `${course.title} - Merryweather Academy`;
+
+            // Check enrollment status
+            checkEnrollmentStatus(courseId);
+        }
+
+        async function checkEnrollmentStatus(courseId) {
+            try {
+                const response = await fetch('/api/auth/status');
+                const data = await response.json();
+
+                if (!data.isAuthenticated) {
+                    document.getElementById('enrollmentStatus').textContent = 'Login to enroll';
+                    document.getElementById('enrollBtn').textContent = 'Login to Start';
+                    return;
+                }
+
+                // Check if user has access via claims
+                const namespace = 'https://verceltestapp-five.vercel.app';
+                const userCourses = data.user[`${namespace}/courses`] || [];
+
+                if (userCourses.includes(courseId)) {
+                    document.getElementById('enrollmentStatus').textContent = 'You are enrolled!';
+                    document.getElementById('enrollBtn').textContent = 'Continue Learning';
+                    document.getElementById('enrollBtn').style.background = '#0a7e3e';
+                } else {
+                    document.getElementById('enrollmentStatus').textContent = 'Not enrolled yet';
+                    document.getElementById('enrollBtn').textContent = 'Request Access';
+                }
+            } catch (error) {
+                console.error('Error checking enrollment:', error);
+            }
+        }
+
+        function handleEnrollment() {
+            const enrollBtn = document.getElementById('enrollBtn');
+            
+            if (enrollBtn.textContent === 'Login to Start') {
+                window.location.href = '/login';
+            } else if (enrollBtn.textContent === 'Continue Learning') {
+                alert('Course player coming soon! You have access to this course.');
+            } else {
+                alert('Please contact admin to request access to this course.');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -90,16 +90,32 @@ async function updateUIForAuth() {
     const loginBtn = document.getElementById('loginBtn');
     const signupBtn = document.getElementById('signupBtn');
     const myCoursesLink = document.getElementById('myCoursesLink');
+    const coursesContainer = document.getElementById('coursesContainer');
+    const courses = [
+        { id: 1, icon: '📚', title: 'Course 1', description: 'This is course 1', level: 'Beginner', duration: 5, lessons: 10 },
+        { id: 2, icon: '📊', title: 'Course 2', description: 'This is course 2', level: 'Intermediate', duration: 10, lessons: 20 },
+        { id: 3, icon: '📈', title: 'Course 3', description: 'This is course 3', level: 'Advanced', duration: 15, lessons: 30 },
+    ];
     
     try {
-        const response = await fetch('/api/auth/status');
-        const data = await response.json();
+        coursesContainer.innerHTML = courses.map(course => `
+        <div class="course-card" onclick="window.location.href='/course.html?id=${course.id}'" style="cursor: pointer;">
+            <div class="course-icon">${course.icon}</div>
+            <h3>${course.title}</h3>
+            <p>${course.description}</p>
+            <div class="course-meta">
+                <span>📊 ${course.level}</span>
+                <span>⏱️ ${course.duration}h</span>
+                <span>📖 ${course.lessons} lessons</span>
+            </div>
+            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e8e8e8;">
+                <small style="color: #326891; font-family: monospace;">ID: ${course.id}</small>
+            </div>
+        </div>
+    `).join('');
         
-        if (data.isAuthenticated) {
-            // Show My Courses link for authenticated users
-            if (myCoursesLink) {
-                myCoursesLink.style.display = 'block';
-            }
+        if (myCoursesLink) {
+            myCoursesLink.style.display = 'block';
         }
     } catch (error) {
         console.error('Error updating UI:', error);

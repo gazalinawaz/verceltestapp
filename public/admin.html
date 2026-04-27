@@ -109,9 +109,9 @@
                     <form id="createCourseForm" class="admin-form">
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="courseId">Course ID * <button type="button" onclick="const field = document.getElementById('courseId'); field.value=''; field.removeAttribute('readonly'); field.removeAttribute('disabled'); field.style.backgroundColor=''; field.focus();" style="background: none; border: none; color: #326891; cursor: pointer; font-size: 0.85rem; text-decoration: underline; margin-left: 0.5rem;">Clear</button></label>
-                                <input type="text" id="courseId" placeholder="e.g., python-basics" required pattern="[a-z0-9-]+" title="Lowercase letters, numbers, and hyphens only" autocomplete="off">
-                                <small>Lowercase letters, numbers, and hyphens only. Click "Clear" to reset.</small>
+                                <label for="courseId">Course ID (Auto-generated)</label>
+                                <input type="text" id="courseId" placeholder="Will be generated automatically..." readonly style="background-color: #f4f4f4; cursor: not-allowed;">
+                                <small>Unique ID will be auto-generated based on course title and sequence number</small>
                             </div>
                             <div class="form-group">
                                 <label for="courseIcon">Icon (Emoji) *</label>
