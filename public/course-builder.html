@@ -296,14 +296,11 @@
                 </div>
 
                 <div class="form-section">
-                    <label class="form-label">Attachments & Resources</label>
-                    <div class="image-upload-area" id="lessonAttachments">
-                        <div class="upload-placeholder">
-                            <span class="upload-icon">📎</span>
-                            <p>Click to upload or paste images/files</p>
-                        </div>
+                    <label class="form-label">Chapters</label>
+                    <div id="chaptersContainer" class="chapters-container">
+                        <!-- Chapters will be rendered here -->
                     </div>
-                    <div id="attachmentsList" class="attachments-list"></div>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addChapter()" style="margin-top: 1rem;">+ Add Chapter</button>
                 </div>
             </div>
             <div class="modal-footer">

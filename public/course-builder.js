@@ -1,7 +1,7 @@
-// Course Builder JavaScript
+// Course Builder JavaScript - Rebuilt
 
 let descriptionEditor;
-let articleEditor;
+let chapterEditor;
 let currentCourse = {
     id: '',
     title: '',
@@ -22,18 +22,22 @@ let currentCourse = {
     }
 };
 
-let currentSection = null;
-let currentLesson = null;
+let currentSectionId = null;
+let currentLessonId = null;
+let currentChapterId = null;
 let sectionCounter = 0;
 let lessonCounter = 0;
+let chapterCounter = 0;
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('Course Builder initializing...');
     checkAuthStatus();
     checkAdminAccess();
     initializeEditors();
     setupEventListeners();
     loadDraftCourse();
+    console.log('Course Builder ready');
 });
 
 // Initialize Rich Text Editors
@@ -74,27 +78,35 @@ function initializeEditors() {
 
 // Setup Event Listeners
 function setupEventListeners() {
-    // Thumbnail upload
+    console.log('Setting up event listeners...');
+    
+    // Thumbnail upload - FIXED
     const thumbnailUpload = document.getElementById('thumbnailUpload');
     const thumbnailInput = document.getElementById('thumbnailInput');
     
-    thumbnailUpload.addEventListener('click', () => thumbnailInput.click());
-    thumbnailInput.addEventListener('change', handleThumbnailUpload);
-    
-    // Paste support for thumbnail
-    thumbnailUpload.addEventListener('paste', handlePaste);
-    
-    // Lesson attachments
-    const lessonAttachments = document.getElementById('lessonAttachments');
-    lessonAttachments.addEventListener('paste', handleLessonPaste);
-    lessonAttachments.addEventListener('click', () => {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*';
-        input.multiple = true;
-        input.onchange = (e) => handleLessonAttachments(e.target.files);
-        input.click();
-    });
+    if (thumbnailUpload && thumbnailInput) {
+        thumbnailUpload.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'INPUT') {
+                thumbnailInput.click();
+            }
+        });
+        
+        thumbnailInput.addEventListener('change', handleThumbnailUpload);
+        
+        // FIXED: Paste support for thumbnail
+        thumbnailUpload.addEventListener('paste', (e) => {
+            console.log('Paste event detected on thumbnail');
+            handlePaste(e);
+        });
+        
+        // Also listen on document for paste when thumbnail area is focused
+        document.addEventListener('paste', (e) => {
+            if (thumbnailUpload.contains(e.target)) {
+                console.log('Document paste on thumbnail area');
+                handlePaste(e);
+            }
+        });
+    }
     
     // Pricing type change
     document.querySelectorAll('input[name="courseType"]').forEach(radio => {
@@ -103,6 +115,8 @@ function setupEventListeners() {
             pricingSection.style.display = e.target.value === 'paid' ? 'block' : 'none';
         });
     });
+    
+    console.log('Event listeners setup complete');
 }
 
 // Panel Navigation
@@ -160,14 +174,34 @@ function handleThumbnailUpload(e) {
 }
 
 function handlePaste(e) {
+    console.log('handlePaste called', e);
+    
+    if (!e.clipboardData || !e.clipboardData.items) {
+        console.log('No clipboard data');
+        return;
+    }
+    
     const items = e.clipboardData.items;
-    for (let item of items) {
-        if (item.type.startsWith('image/')) {
+    console.log('Clipboard items:', items.length);
+    
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        console.log('Item type:', item.type);
+        
+        if (item.type.indexOf('image') !== -1) {
+            console.log('Image found in clipboard');
             const file = item.getAsFile();
-            displayThumbnail(file);
-            e.preventDefault();
+            if (file) {
+                displayThumbnail(file);
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Image pasted successfully');
+                return;
+            }
         }
     }
+    
+    console.log('No image found in clipboard');
 }
 
 function displayThumbnail(file) {
@@ -183,31 +217,46 @@ function displayThumbnail(file) {
     reader.readAsDataURL(file);
 }
 
-// Sections Management
-function addSection() {
+// Sections Management - FIXED
+window.addSection = function() {
+    console.log('Adding new section...');
     sectionCounter++;
     const section = {
-        id: `section-${sectionCounter}`,
+        id: `section-${Date.now()}-${sectionCounter}`,
         title: `Section ${sectionCounter}`,
+        order: currentCourse.sections.length + 1,
         lessons: []
     };
     
     currentCourse.sections.push(section);
+    console.log('Section added:', section);
     renderSections();
     updateSectionCount();
+    autoSave();
 }
 
 function renderSections() {
     const container = document.getElementById('sectionsContainer');
+    
+    if (!container) {
+        console.error('sectionsContainer not found');
+        return;
+    }
+    
+    if (currentCourse.sections.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--text-color); opacity: 0.7; padding: 2rem;">No sections yet. Click "+ Add Section" to get started.</p>';
+        return;
+    }
+    
     container.innerHTML = currentCourse.sections.map((section, index) => `
         <div class="section-card" data-section-id="${section.id}">
             <div class="section-header">
                 <span class="section-handle">☰</span>
-                <input type="text" class="section-title-input" value="${section.title}" 
-                       onchange="updateSectionTitle('${section.id}', this.value)">
+                <input type="text" class="section-title-input" value="${escapeHtml(section.title)}" 
+                       onchange="window.updateSectionTitle('${section.id}', this.value)">
                 <div class="section-actions">
-                    <button class="btn btn-sm btn-primary" onclick="addLesson('${section.id}')">+ Add Lesson</button>
-                    <button class="btn-icon" onclick="deleteSection('${section.id}')">🗑️</button>
+                    <button class="btn btn-sm btn-primary" onclick="window.addLesson('${section.id}')">+ Add Lesson</button>
+                    <button class="btn-icon" onclick="window.deleteSection('${section.id}')">🗑️</button>
                 </div>
             </div>
             <div class="lessons-list" id="lessons-${section.id}">
@@ -215,25 +264,39 @@ function renderSections() {
             </div>
         </div>
     `).join('');
+    
+    console.log('Sections rendered:', currentCourse.sections.length);
 }
 
 function renderLessons(lessons, sectionId) {
-    if (lessons.length === 0) {
-        return '<p style="color: var(--text-color); opacity: 0.7; padding: 1rem;">No lessons yet. Click "Add Lesson" to get started.</p>';
+    if (!lessons || lessons.length === 0) {
+        return '<p style="color: var(--text-color); opacity: 0.7; padding: 1rem;">No lessons yet. Click "+ Add Lesson" to get started.</p>';
     }
     
-    return lessons.map(lesson => `
-        <div class="lesson-item" onclick="editLesson('${sectionId}', '${lesson.id}')">
-            <span class="lesson-icon">${getLessonIcon(lesson.type)}</span>
+    return lessons.map(lesson => {
+        const chapterCount = lesson.chapters ? lesson.chapters.length : 0;
+        const totalDuration = calculateLessonDuration(lesson);
+        
+        return `
+        <div class="lesson-item" onclick="window.editLesson('${sectionId}', '${lesson.id}')">
+            <span class="lesson-icon">📚</span>
             <div class="lesson-info">
-                <div class="lesson-title">${lesson.title}</div>
-                <div class="lesson-meta">${lesson.type} • ${lesson.duration || '5'} min</div>
+                <div class="lesson-title">${escapeHtml(lesson.title)}</div>
+                <div class="lesson-meta">${chapterCount} chapters • ${totalDuration} min</div>
             </div>
             <div class="lesson-actions" onclick="event.stopPropagation()">
-                <button class="btn-icon" onclick="deleteLesson('${sectionId}', '${lesson.id}')">🗑️</button>
+                <button class="btn-icon" onclick="window.deleteLesson('${sectionId}', '${lesson.id}')">🗑️</button>
             </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
+}
+
+function calculateLessonDuration(lesson) {
+    if (!lesson.chapters || lesson.chapters.length === 0) return 0;
+    return lesson.chapters.reduce((sum, chapter) => {
+        return sum + (chapter.duration || 5);
+    }, 0);
 }
 
 function getLessonIcon(type) {
@@ -245,18 +308,21 @@ function getLessonIcon(type) {
     return icons[type] || '📄';
 }
 
-function updateSectionTitle(sectionId, title) {
+window.updateSectionTitle = function(sectionId, title) {
+    console.log('Updating section title:', sectionId, title);
     const section = currentCourse.sections.find(s => s.id === sectionId);
     if (section) {
         section.title = title;
+        autoSave();
     }
 }
 
-function deleteSection(sectionId) {
+window.deleteSection = function(sectionId) {
     if (confirm('Delete this section and all its lessons?')) {
         currentCourse.sections = currentCourse.sections.filter(s => s.id !== sectionId);
         renderSections();
         updateSectionCount();
+        autoSave();
     }
 }
 
@@ -265,32 +331,54 @@ function updateSectionCount() {
     document.getElementById('sectionCount').textContent = totalLessons;
 }
 
-// Lessons Management
-function addLesson(sectionId) {
-    currentSection = sectionId;
-    currentLesson = null;
+// Lessons Management - FIXED
+window.addLesson = function(sectionId) {
+    console.log('Adding lesson to section:', sectionId);
     
-    // Reset form
-    document.getElementById('lessonTitle').value = '';
-    document.getElementById('lessonType').value = 'video';
-    document.getElementById('videoUrl').value = '';
-    document.getElementById('lessonDuration').value = '';
-    document.getElementById('lessonDescription').value = '';
-    articleEditor.setText('');
-    document.getElementById('attachmentsList').innerHTML = '';
+    currentSectionId = sectionId;
+    currentLessonId = null;
     
-    updateLessonTypeFields();
-    openLessonModal();
+    // Create new lesson directly
+    lessonCounter++;
+    const section = currentCourse.sections.find(s => s.id === sectionId);
+    
+    if (!section) {
+        console.error('Section not found:', sectionId);
+        return;
+    }
+    
+    const newLesson = {
+        id: `lesson-${Date.now()}-${lessonCounter}`,
+        title: `Lesson ${section.lessons.length + 1}`,
+        description: '',
+        order: section.lessons.length + 1,
+        chapters: []
+    };
+    
+    section.lessons.push(newLesson);
+    console.log('Lesson added:', newLesson);
+    
+    renderSections();
+    updateSectionCount();
+    autoSave();
+    
+    // Open lesson editor
+    editLesson(sectionId, newLesson.id);
 }
 
-function editLesson(sectionId, lessonId) {
-    currentSection = sectionId;
-    const section = currentCourse.sections.find(s => s.id === sectionId);
-    currentLesson = section.lessons.find(l => l.id === lessonId);
+window.editLesson = function(sectionId, lessonId) {
+    console.log('Editing lesson:', sectionId, lessonId);
+    currentSectionId = sectionId;
+    currentLessonId = lessonId;
     
-    // Populate form
-    document.getElementById('lessonTitle').value = currentLesson.title;
-    document.getElementById('lessonType').value = currentLesson.type;
+    const section = currentCourse.sections.find(s => s.id === sectionId);
+    if (!section) return;
+    
+    const lesson = section.lessons.find(l => l.id === lessonId);
+    if (!lesson) return;
+    
+    // Show lesson editor modal with chapters
+    openLessonEditor(lesson);
     document.getElementById('lessonDescription').value = currentLesson.description || '';
     
     if (currentLesson.type === 'video') {
@@ -355,57 +443,112 @@ function saveLesson() {
     closeLessonModal();
 }
 
-function deleteLesson(sectionId, lessonId) {
-    if (confirm('Delete this lesson?')) {
+window.deleteLesson = function(sectionId, lessonId) {
+    if (confirm('Delete this lesson and all its chapters?')) {
         const section = currentCourse.sections.find(s => s.id === sectionId);
-        section.lessons = section.lessons.filter(l => l.id !== lessonId);
-        renderSections();
-        updateSectionCount();
-    }
-}
-
-// Lesson Attachments
-function handleLessonPaste(e) {
-    const items = e.clipboardData.items;
-    for (let item of items) {
-        if (item.type.startsWith('image/')) {
-            const file = item.getAsFile();
-            addAttachment(file);
-            e.preventDefault();
+        if (section) {
+            section.lessons = section.lessons.filter(l => l.id !== lessonId);
+            renderSections();
+            updateSectionCount();
+            autoSave();
         }
     }
 }
 
-function handleLessonAttachments(files) {
-    Array.from(files).forEach(file => {
-        if (file.type.startsWith('image/')) {
-            addAttachment(file);
-        }
-    });
+// Lesson Editor Modal
+function openLessonEditor(lesson) {
+    const modal = document.getElementById('lessonModal');
+    if (!modal) return;
+    
+    // Populate lesson details
+    document.getElementById('lessonTitle').value = lesson.title || '';
+    document.getElementById('lessonDescription').value = lesson.description || '';
+    
+    // Render chapters
+    renderChapters(lesson.chapters || []);
+    
+    modal.classList.add('active');
 }
 
-function addAttachment(file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        const container = document.getElementById('attachmentsList');
-        const div = document.createElement('div');
-        div.className = 'attachment-item';
-        div.innerHTML = `
-            <img src="${e.target.result}" alt="Attachment">
-            <button class="attachment-remove" onclick="this.parentElement.remove()">×</button>
-        `;
-        container.appendChild(div);
+function renderChapters(chapters) {
+    // For now, simple list - will enhance later
+    const container = document.getElementById('chaptersContainer');
+    if (!container) return;
+    
+    if (chapters.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-color); opacity: 0.7; padding: 1rem;">No chapters yet. Click "+ Add Chapter" to get started.</p>';
+        return;
+    }
+    
+    container.innerHTML = chapters.map((chapter, index) => `
+        <div class="chapter-item">
+            <span class="chapter-icon">${getChapterIcon(chapter.type)}</span>
+            <div class="chapter-info">
+                <div class="chapter-title">${escapeHtml(chapter.title)}</div>
+                <div class="chapter-meta">${chapter.type} • ${chapter.duration || 5} min</div>
+            </div>
+            <div class="chapter-actions">
+                <button class="btn-icon" onclick="deleteChapter(${index})">🗑️</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function getChapterIcon(type) {
+    const icons = {
+        'video': '🎥',
+        'text': '📄',
+        'image': '🖼️',
+        'code': '💻',
+        'quiz': '❓',
+        'file': '📎'
     };
-    reader.readAsDataURL(file);
+    return icons[type] || '📄';
 }
 
-// Modal Functions
-function openLessonModal() {
-    document.getElementById('lessonModal').classList.add('active');
+window.saveLesson = function() {
+    const title = document.getElementById('lessonTitle').value.trim();
+    if (!title) {
+        alert('Please enter a lesson title');
+        return;
+    }
+    
+    const section = currentCourse.sections.find(s => s.id === currentSectionId);
+    if (!section) return;
+    
+    const lesson = section.lessons.find(l => l.id === currentLessonId);
+    if (!lesson) return;
+    
+    lesson.title = title;
+    lesson.description = document.getElementById('lessonDescription').value;
+    
+    closeLessonModal();
+    renderSections();
+    autoSave();
 }
 
-function closeLessonModal() {
-    document.getElementById('lessonModal').classList.remove('active');
+window.closeLessonModal = function() {
+    const modal = document.getElementById('lessonModal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
+
+// Helper function to escape HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Auto-save functionality
+let autoSaveTimeout;
+function autoSave() {
+    clearTimeout(autoSaveTimeout);
+    autoSaveTimeout = setTimeout(() => {
+        localStorage.setItem('courseDraft', JSON.stringify(currentCourse));
+        console.log('Course auto-saved');
+    }, 1000);
 }
 
 // Preview
@@ -440,8 +583,62 @@ function updatePreview() {
     `;
 }
 
+// Load Draft
+function loadDraftCourse() {
+    const draft = localStorage.getItem('courseDraft');
+    if (draft) {
+        try {
+            currentCourse = JSON.parse(draft);
+            console.log('Draft course loaded:', currentCourse);
+            
+            // Populate basic fields if they exist
+            if (currentCourse.title) {
+                document.getElementById('courseTitle').value = currentCourse.title;
+            }
+            if (currentCourse.subtitle) {
+                document.getElementById('courseSubtitle').value = currentCourse.subtitle;
+            }
+            if (currentCourse.id) {
+                document.getElementById('courseId').value = currentCourse.id;
+            }
+            if (currentCourse.thumbnail) {
+                displayThumbnail(null, currentCourse.thumbnail);
+            }
+            
+            renderSections();
+            updateSectionCount();
+        } catch (e) {
+            console.error('Error loading draft:', e);
+        }
+    }
+}
+
+function displayThumbnail(file, dataUrl) {
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            showThumbnailPreview(e.target.result);
+        };
+        reader.readAsDataURL(file);
+    } else if (dataUrl) {
+        showThumbnailPreview(dataUrl);
+    }
+}
+
+function showThumbnailPreview(dataUrl) {
+    const preview = document.getElementById('thumbnailPreview');
+    const placeholder = document.querySelector('#thumbnailUpload .upload-placeholder');
+    if (preview && placeholder) {
+        preview.src = dataUrl;
+        preview.style.display = 'block';
+        placeholder.style.display = 'none';
+        currentCourse.thumbnail = dataUrl;
+        autoSave();
+    }
+}
+
 // Save Course
-async function saveCourse() {
+window.saveCourse = async function() {
     // Collect all form data
     currentCourse.id = document.getElementById('courseId').value.trim();
     currentCourse.title = document.getElementById('courseTitle').value.trim();
@@ -532,20 +729,6 @@ async function saveCourse() {
     }
 }
 
-// Load Draft
-function loadDraftCourse() {
-    const draft = localStorage.getItem('courseDraft');
-    if (draft) {
-        currentCourse = JSON.parse(draft);
-        // Populate form fields
-        if (currentCourse.title) {
-            document.getElementById('courseTitle').value = currentCourse.title;
-        }
-        // ... populate other fields as needed
-        renderSections();
-        updateSectionCount();
-    }
-}
 
 // Helper functions from admin.js
 function getCoursesCatalog() {

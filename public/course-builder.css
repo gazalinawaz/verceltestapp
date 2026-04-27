@@ -424,46 +424,55 @@
     display: block;
 }
 
-/* Attachments List */
-.attachments-list {
+/* Chapters Container */
+.chapters-container {
     display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-top: 1rem;
-}
-
-.attachment-item {
-    position: relative;
-    width: 120px;
-    height: 120px;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: var(--light-color);
     border-radius: 8px;
-    overflow: hidden;
-    border: 2px solid var(--border-color);
+    min-height: 100px;
 }
 
-.attachment-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.chapter-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
 }
 
-.attachment-remove {
-    position: absolute;
-    top: 0.25rem;
-    right: 0.25rem;
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
-    font-size: 1rem;
-    line-height: 1;
+.chapter-item:hover {
+    box-shadow: var(--shadow);
 }
 
-.attachment-remove:hover {
-    background: rgba(0, 0, 0, 0.9);
+.chapter-icon {
+    font-size: 1.5rem;
+}
+
+.chapter-info {
+    flex: 1;
+}
+
+.chapter-title {
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 0.25rem;
+}
+
+.chapter-meta {
+    font-size: 0.85rem;
+    color: var(--text-color);
+    opacity: 0.7;
+}
+
+.chapter-actions {
+    display: flex;
+    gap: 0.5rem;
 }
 
 /* Course Preview */
