@@ -14,13 +14,12 @@ const config = {
   baseURL: process.env.BASE_URL || `http://localhost:${port}`,
   clientID: process.env.AUTH0_CLIENT_ID,
   issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
-  clientSecret: process.env.AUTH0_CLIENT_SECRET
-  // Temporarily commented out to test if audience is causing login issues
-  // authorizationParams: {
-  //   response_type: 'code',
-  //   audience: 'https://jade-swan-94501.cic-demo-platform.auth0app.com/api/v2/',
-  //   scope: 'openid profile email read:current_user update:current_user_metadata'
-  // }
+  clientSecret: process.env.AUTH0_CLIENT_SECRET,
+  authorizationParams: {
+    response_type: 'code',
+    audience: 'https://jade-swan-94501.cic-demo-platform.auth0app.com/api/v2/',
+    scope: 'openid profile email read:current_user update:current_user_metadata'
+  }
 };
 
 // Auth router attaches /login, /logout, and /callback routes to the baseURL
