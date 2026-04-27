@@ -480,16 +480,21 @@ function saveLesson() {
     if (currentLessonId) {
         // Update existing lesson
         const index = currentCourse.lessons.findIndex(l => l.id === currentLessonId);
-        currentCourse.lessons[index] = lesson;
+        if (index >= 0) {
+            currentCourse.lessons[index] = lesson;
+        }
     } else {
         // Add new lesson
+        if (!lesson.chapters) {
+            lesson.chapters = [];
+        }
         currentCourse.lessons.push(lesson);
-        section.lessons.push(lesson);
     }
     
-    renderSections();
-    updateSectionCount();
+    renderLessons();
+    updateLessonCount();
     closeLessonModal();
+    autoSave();
 }
 
 window.deleteLesson = function(lessonId) {
