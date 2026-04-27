@@ -111,15 +111,18 @@ function loadCourses() {
     const courses = getCoursesCatalog();
     const coursesList = document.getElementById('coursesList');
     
+    if (!coursesList) return;
+    
     if (courses.length === 0) {
         coursesList.innerHTML = `
             <div class="empty-state">
                 <p>No courses in catalog yet. Create your first course!</p>
             </div>
+        `;
         return;
     }
     
-    container.innerHTML = courses.map(course => `
+    coursesList.innerHTML = courses.map(course => `
         <div class="course-card">
             <div class="course-icon">${course.icon}</div>
             <h3>${course.title}</h3>
