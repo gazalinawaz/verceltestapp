@@ -288,8 +288,10 @@ function editCourse(courseId) {
     document.getElementById('courseDuration').value = course.duration;
     document.getElementById('courseLessons').value = course.lessons;
     
-    // Disable ID field (can't change ID)
-    document.getElementById('courseId').disabled = true;
+    // Make ID field readonly when editing (can't change existing course ID)
+    document.getElementById('courseId').setAttribute('readonly', true);
+    document.getElementById('courseId').style.backgroundColor = '#f4f4f4';
+    document.getElementById('courseId').title = 'Course ID cannot be changed after creation';
     
     // Switch to create tab
     switchTab('create');
