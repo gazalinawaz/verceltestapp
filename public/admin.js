@@ -403,11 +403,29 @@ function deleteCourse(courseId) {
         return;
     }
     
+    console.log('🗑️ Deleting course:', courseId);
+    
     const courses = getCoursesCatalog();
     const filtered = courses.filter(c => c.id !== courseId);
     saveCoursesCatalog(filtered);
+    
+    // Also clear draft if it matches deleted course
+    try {
+        const draft = localStorage.getItem('courseDraft');
+        if (draft) {
+            const draftCourse = JSON.parse(draft);
+            if (draftCourse.id === courseId) {
+                localStorage.removeItem('courseDraft');
+                console.log('✅ Cleared draft for deleted course');
+            }
+        }
+    } catch (e) {
+        console.error('Error clearing draft:', e);
+    }
+    
     loadCourses();
     loadCourseCheckboxes();
     
+    console.log('✅ Course deleted successfully');
     alert('Course deleted successfully!');
 }

@@ -429,13 +429,13 @@ window.editLesson = function(lessonId) {
     
     // Show lesson editor modal with chapters
     openLessonEditor(lesson);
-    document.getElementById('lessonDescription').value = currentLesson.description || '';
+    document.getElementById('lessonDescription').value = lesson.description || '';
     
-    if (currentLesson.type === 'video') {
-        document.getElementById('videoUrl').value = currentLesson.videoUrl || '';
-        document.getElementById('lessonDuration').value = currentLesson.duration || '';
-    } else if (currentLesson.type === 'article') {
-        articleEditor.root.innerHTML = currentLesson.content || '';
+    if (lesson.type === 'video') {
+        document.getElementById('videoUrl').value = lesson.videoUrl || '';
+        document.getElementById('lessonDuration').value = lesson.duration || '';
+    } else if (lesson.type === 'article') {
+        articleEditor.root.innerHTML = lesson.content || '';
     }
     
     updateLessonTypeFields();
@@ -463,12 +463,17 @@ function saveLesson() {
     }
     
     const type = document.getElementById('lessonType').value;
+    
+    // Check if editing existing lesson
+    const existingLesson = currentLessonId ? currentCourse.lessons.find(l => l.id === currentLessonId) : null;
+    
     const lesson = {
-        id: currentLesson ? currentLesson.id : `lesson-${++lessonCounter}`,
+        id: existingLesson ? existingLesson.id : `lesson-${++lessonCounter}`,
         title: title,
         type: type,
         description: document.getElementById('lessonDescription').value,
-        duration: document.getElementById('lessonDuration').value || 5
+        duration: document.getElementById('lessonDuration').value || 5,
+        chapters: existingLesson ? existingLesson.chapters : []
     };
     
     if (type === 'video') {
@@ -697,10 +702,10 @@ window.updateChapterTypeFields = function() {
     }
 }
 
-let chapterEditor = null;
-
 function initializeChapterEditor() {
     if (chapterEditor) return; // Already initialized
+    
+    chapterEditor = null;
     
     const editorEl = document.querySelector('#chapterTextEditor');
     if (!editorEl) {
@@ -1070,11 +1075,16 @@ window.saveCourse = async function() {
         return;
     }
     
-    // Calculate totals
-    const totalLessons = currentCourse.sections.reduce((sum, s) => sum + s.lessons.length, 0);
-    const totalDuration = currentCourse.sections.reduce((sum, s) => 
-        sum + s.lessons.reduce((lsum, l) => lsum + parseInt(l.duration || 5), 0), 0
-    );
+    // Calculate totals from lessons (simplified structure)
+    const lessons = currentCourse.lessons || [];
+    const totalLessons = lessons.length;
+    const totalDuration = lessons.reduce((sum, lesson) => {
+        const lessonDuration = parseInt(lesson.duration || 5);
+        const chaptersDuration = (lesson.chapters || []).reduce((csum, chapter) => 
+            csum + parseInt(chapter.duration || 5), 0
+        );
+        return sum + lessonDuration + chaptersDuration;
+    }, 0);
     
     // Save to localStorage
     localStorage.setItem('courseDraft', JSON.stringify(currentCourse));
