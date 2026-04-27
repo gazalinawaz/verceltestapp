@@ -108,12 +108,19 @@ function switchTab(tabName) {
 
 // Load courses from localStorage
 function loadCourses() {
+    console.log('📚 Loading courses...');
     const courses = getCoursesCatalog();
     const coursesList = document.getElementById('coursesList');
     
-    if (!coursesList) return;
+    console.log('📊 Found', courses.length, 'courses');
+    
+    if (!coursesList) {
+        console.error('❌ coursesList element not found!');
+        return;
+    }
     
     if (courses.length === 0) {
+        console.log('ℹ️ No courses to display');
         coursesList.innerHTML = `
             <div class="empty-state">
                 <p>No courses in catalog yet. Create your first course!</p>
@@ -122,6 +129,7 @@ function loadCourses() {
         return;
     }
     
+    console.log('✅ Rendering', courses.length, 'courses');
     coursesList.innerHTML = courses.map(course => `
         <div class="course-card">
             <div class="course-icon">${course.icon}</div>
@@ -216,14 +224,19 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const form = document.getElementById('createCourseForm');
     if (form) {
+        console.log('✅ Create course form found, adding submit listener');
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
+            console.log('📝 Form submitted');
             
             // Generate course ID if not already set
             let courseId = document.getElementById('courseId').value.trim();
             if (!courseId) {
                 courseId = generateCourseId(document.getElementById('courseTitle').value.trim());
                 document.getElementById('courseId').value = courseId;
+                console.log('🆔 Generated course ID:', courseId);
+            } else {
+                console.log('🆔 Using existing course ID:', courseId);
             }
             
             const courseData = {
@@ -236,9 +249,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 lessons: parseInt(document.getElementById('courseLessons').value)
             };
             
+            console.log('📦 Course data:', courseData);
+            
             // Validate course ID doesn't exist
             const courses = getCoursesCatalog();
+            console.log('📚 Existing courses:', courses.length);
+            
             if (courses.find(c => c.id === courseData.id)) {
+                console.error('❌ Duplicate course ID:', courseData.id);
                 alert('A course with this ID already exists. Please use a different ID.');
                 return;
             }
@@ -246,9 +264,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // Add course to catalog
             courses.push(courseData);
             saveCoursesCatalog(courses);
+            console.log('💾 Course saved to localStorage');
+            console.log('📚 Total courses now:', courses.length);
             
             // Save to backend
             try {
+                console.log('🌐 Attempting to save to backend...');
                 const response = await fetch('/api/admin/courses', {
                     method: 'POST',
                     headers: {
@@ -258,19 +279,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 
                 if (response.ok) {
+                    console.log('✅ Backend save successful');
                     alert('Course created successfully!');
-                    form.reset();
+                    resetForm();
                     loadCourses();
                     loadCourseCheckboxes();
                     switchTab('courses');
                 } else {
+                    console.warn('⚠️ Backend save failed, but localStorage save succeeded');
                     alert('Course saved locally but failed to sync with server.');
+                    loadCourses();
+                    loadCourseCheckboxes();
+                    switchTab('courses');
                 }
             } catch (error) {
-                console.error('Error creating course:', error);
+                console.error('❌ Backend error:', error);
+                console.log('✅ Course still saved to localStorage');
                 alert('Course saved locally. Will sync with server when available.');
+                loadCourses();
+                loadCourseCheckboxes();
+                switchTab('courses');
             }
         });
+    } else {
+        console.error('❌ Create course form NOT found!');
     }
     
     // Enrollment form
@@ -334,6 +366,15 @@ function loadCourseCheckboxes() {
 // Reset form
 function resetForm() {
     document.getElementById('createCourseForm').reset();
+    // Clear auto-generated course ID
+    const courseIdField = document.getElementById('courseId');
+    if (courseIdField) {
+        courseIdField.value = '';
+        courseIdField.placeholder = 'Will be generated automatically...';
+        courseIdField.style.color = '';
+        courseIdField.style.fontWeight = '';
+    }
+    console.log('Form reset');
 }
 
 // Edit course (placeholder)
