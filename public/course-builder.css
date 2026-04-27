@@ -201,11 +201,23 @@
     cursor: pointer;
     transition: all 0.3s ease;
     background: white;
+    outline: none;
 }
 
 .image-upload-area:hover {
     border-color: var(--primary-color);
     background: var(--light-color);
+}
+
+.image-upload-area:focus {
+    border-color: var(--primary-color);
+    background: #f0f4ff;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.image-upload-area:focus .upload-placeholder p {
+    color: var(--primary-color);
+    font-weight: 600;
 }
 
 .upload-placeholder {

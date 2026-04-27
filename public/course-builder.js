@@ -80,31 +80,53 @@ function initializeEditors() {
 function setupEventListeners() {
     console.log('Setting up event listeners...');
     
-    // Thumbnail upload - FIXED
+    // Thumbnail upload - COMPLETELY REWRITTEN
     const thumbnailUpload = document.getElementById('thumbnailUpload');
     const thumbnailInput = document.getElementById('thumbnailInput');
     
     if (thumbnailUpload && thumbnailInput) {
+        // Make the upload area focusable so it can receive paste events
+        thumbnailUpload.setAttribute('tabindex', '0');
+        
+        // Click to upload
         thumbnailUpload.addEventListener('click', (e) => {
+            console.log('Thumbnail area clicked');
             if (e.target.tagName !== 'INPUT') {
                 thumbnailInput.click();
             }
         });
         
-        thumbnailInput.addEventListener('change', handleThumbnailUpload);
+        // File input change
+        thumbnailInput.addEventListener('change', (e) => {
+            console.log('File selected via input');
+            handleThumbnailUpload(e);
+        });
         
-        // FIXED: Paste support for thumbnail
+        // Focus the area when clicked to enable paste
+        thumbnailUpload.addEventListener('click', () => {
+            thumbnailUpload.focus();
+        });
+        
+        // Paste event on the upload area itself
         thumbnailUpload.addEventListener('paste', (e) => {
-            console.log('Paste event detected on thumbnail');
+            console.log('Paste event on thumbnailUpload element');
+            e.preventDefault();
+            e.stopPropagation();
             handlePaste(e);
         });
         
-        // Also listen on document for paste when thumbnail area is focused
-        document.addEventListener('paste', (e) => {
-            if (thumbnailUpload.contains(e.target)) {
-                console.log('Document paste on thumbnail area');
-                handlePaste(e);
+        // Global paste handler as backup
+        let pasteHandlerAdded = false;
+        thumbnailUpload.addEventListener('focus', () => {
+            if (!pasteHandlerAdded) {
+                console.log('Thumbnail area focused, adding global paste listener');
+                window.addEventListener('paste', globalPasteHandler);
+                pasteHandlerAdded = true;
             }
+        });
+        
+        thumbnailUpload.addEventListener('blur', () => {
+            console.log('Thumbnail area blurred');
         });
     }
     
@@ -117,6 +139,16 @@ function setupEventListeners() {
     });
     
     console.log('Event listeners setup complete');
+}
+
+// Global paste handler
+function globalPasteHandler(e) {
+    const thumbnailUpload = document.getElementById('thumbnailUpload');
+    if (document.activeElement === thumbnailUpload || thumbnailUpload.contains(document.activeElement)) {
+        console.log('Global paste detected while thumbnail area focused');
+        e.preventDefault();
+        handlePaste(e);
+    }
 }
 
 // Panel Navigation
@@ -174,34 +206,51 @@ function handleThumbnailUpload(e) {
 }
 
 function handlePaste(e) {
-    console.log('handlePaste called', e);
+    console.log('=== PASTE EVENT HANDLER ===' );
+    console.log('Event:', e);
+    console.log('ClipboardData:', e.clipboardData);
     
-    if (!e.clipboardData || !e.clipboardData.items) {
-        console.log('No clipboard data');
+    if (!e.clipboardData) {
+        console.error('No clipboardData in event');
         return;
     }
     
     const items = e.clipboardData.items;
-    console.log('Clipboard items:', items.length);
+    if (!items) {
+        console.error('No items in clipboardData');
+        return;
+    }
+    
+    console.log('Total clipboard items:', items.length);
     
     for (let i = 0; i < items.length; i++) {
         const item = items[i];
-        console.log('Item type:', item.type);
+        console.log(`Item ${i}:`, {
+            kind: item.kind,
+            type: item.type
+        });
         
-        if (item.type.indexOf('image') !== -1) {
-            console.log('Image found in clipboard');
+        // Check if it's an image
+        if (item.kind === 'file' && item.type.startsWith('image/')) {
+            console.log('✓ Image file found!');
             const file = item.getAsFile();
+            
             if (file) {
-                displayThumbnail(file);
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Image pasted successfully');
+                console.log('File object:', file);
+                console.log('File name:', file.name);
+                console.log('File size:', file.size);
+                console.log('File type:', file.type);
+                
+                displayThumbnail(file, null);
+                console.log('✓ Image pasted and displayed successfully!');
                 return;
+            } else {
+                console.error('getAsFile() returned null');
             }
         }
     }
     
-    console.log('No image found in clipboard');
+    console.warn('No image found in clipboard items');
 }
 
 function displayThumbnail(file) {
