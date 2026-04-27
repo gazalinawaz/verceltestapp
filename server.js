@@ -14,7 +14,12 @@ const config = {
   baseURL: process.env.BASE_URL || `http://localhost:${port}`,
   clientID: process.env.AUTH0_CLIENT_ID,
   issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
-  clientSecret: process.env.AUTH0_CLIENT_SECRET
+  clientSecret: process.env.AUTH0_CLIENT_SECRET,
+  authorizationParams: {
+    response_type: 'code',
+    audience: 'https://jade-swan-94501.cic-demo-platform.auth0app.com/api/v2/',
+    scope: 'openid profile email read:current_user update:current_user_metadata'
+  }
 };
 
 // Auth router attaches /login, /logout, and /callback routes to the baseURL
@@ -67,10 +72,29 @@ app.get('/profile', (req, res) => {
 });
 
 // API endpoint to check auth status
-app.get('/api/auth/status', (req, res) => {
+app.get('/api/auth/status', async (req, res) => {
+  if (!req.oidc.isAuthenticated()) {
+    return res.json({
+      isAuthenticated: false,
+      user: null
+    });
+  }
+  
+  // Get access token from session
+  let accessToken = null;
+  try {
+    accessToken = await req.oidc.accessToken();
+    console.log('🔑 Access Token Retrieved:', accessToken ? 'YES' : 'NO');
+    console.log('📊 Token length:', accessToken ? accessToken.length : 0);
+  } catch (error) {
+    console.error('❌ Error getting access token:', error.message);
+  }
+  
   res.json({
-    isAuthenticated: req.oidc.isAuthenticated(),
-    user: req.oidc.isAuthenticated() ? req.oidc.user : null
+    isAuthenticated: true,
+    user: req.oidc.user,
+    hasAccessToken: !!accessToken,
+    accessTokenPreview: accessToken ? accessToken.substring(0, 50) + '...' : null
   });
 });
 
