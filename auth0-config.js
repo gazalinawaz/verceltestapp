@@ -5,7 +5,8 @@ const auth0Config = {
     clientId: 'fkatvoAkZ8TkLNykQTFildt9VBk7D1cb',
     authorizationParams: {
         redirect_uri: window.location.origin,
-        scope: 'openid profile email'
+        audience: 'https://jade-swan-94501.cic-demo-platform.auth0app.com/api/v2/',
+        scope: 'openid profile email read:current_user update:current_user_metadata'
     }
 };
 
