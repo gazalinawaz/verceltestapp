@@ -13,7 +13,7 @@ let currentCourse = {
     level: 'Beginner',
     language: 'English',
     icon: '📚',
-    sections: [],
+    lessons: [],  // SIMPLIFIED: Direct lessons, no sections
     pricing: { type: 'free', price: 0 },
     settings: {
         certificate: false,
@@ -22,10 +22,8 @@ let currentCourse = {
     }
 };
 
-let currentSectionId = null;
 let currentLessonId = null;
 let currentChapterId = null;
-let sectionCounter = 0;
 let lessonCounter = 0;
 let chapterCounter = 0;
 
@@ -304,80 +302,79 @@ function displayThumbnail(file) {
     reader.readAsDataURL(file);
 }
 
-// Sections Management - FIXED
-window.addSection = function() {
-    console.log('Adding new section...');
-    sectionCounter++;
-    const section = {
-        id: `section-${Date.now()}-${sectionCounter}`,
-        title: `Section ${sectionCounter}`,
-        order: currentCourse.sections.length + 1,
-        lessons: []
+// Lessons Management - SIMPLIFIED
+window.addLesson = function() {
+    console.log('Adding new lesson...');
+    lessonCounter++;
+    const lesson = {
+        id: `lesson-${Date.now()}-${lessonCounter}`,
+        title: `Lesson ${lessonCounter}`,
+        description: '',
+        order: currentCourse.lessons.length + 1,
+        chapters: []
     };
     
-    currentCourse.sections.push(section);
-    console.log('Section added:', section);
-    renderSections();
-    updateSectionCount();
+    currentCourse.lessons.push(lesson);
+    console.log('Lesson added:', lesson);
+    renderLessons();
+    updateLessonCount();
     autoSave();
 }
 
-function renderSections() {
-    const container = document.getElementById('sectionsContainer');
+function renderLessons() {
+    const container = document.getElementById('lessonsContainer');
     
     if (!container) {
-        console.error('sectionsContainer not found');
+        console.error('lessonsContainer not found');
         return;
     }
     
-    if (currentCourse.sections.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: var(--text-color); opacity: 0.7; padding: 2rem;">No sections yet. Click "+ Add Section" to get started.</p>';
+    if (currentCourse.lessons.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--text-color); opacity: 0.7; padding: 2rem;">No lessons yet. Click "+ Add Lesson" to get started.</p>';
         return;
     }
     
-    container.innerHTML = currentCourse.sections.map((section, index) => `
-        <div class="section-card" data-section-id="${section.id}">
-            <div class="section-header">
-                <span class="section-handle">☰</span>
-                <input type="text" class="section-title-input" value="${escapeHtml(section.title)}" 
-                       onchange="window.updateSectionTitle('${section.id}', this.value)">
-                <div class="section-actions">
-                    <button class="btn btn-sm btn-primary" onclick="window.addLesson('${section.id}')">+ Add Lesson</button>
-                    <button class="btn-icon" onclick="window.deleteSection('${section.id}')">🗑️</button>
-                </div>
-            </div>
-            <div class="lessons-list" id="lessons-${section.id}">
-                ${renderLessons(section.lessons, section.id)}
-            </div>
-        </div>
-    `).join('');
-    
-    console.log('Sections rendered:', currentCourse.sections.length);
-}
-
-function renderLessons(lessons, sectionId) {
-    if (!lessons || lessons.length === 0) {
-        return '<p style="color: var(--text-color); opacity: 0.7; padding: 1rem;">No lessons yet. Click "+ Add Lesson" to get started.</p>';
-    }
-    
-    return lessons.map(lesson => {
+    container.innerHTML = currentCourse.lessons.map((lesson, index) => {
         const chapterCount = lesson.chapters ? lesson.chapters.length : 0;
         const totalDuration = calculateLessonDuration(lesson);
         
         return `
-        <div class="lesson-item" onclick="window.editLesson('${sectionId}', '${lesson.id}')">
-            <span class="lesson-icon">📚</span>
-            <div class="lesson-info">
-                <div class="lesson-title">${escapeHtml(lesson.title)}</div>
-                <div class="lesson-meta">${chapterCount} chapters • ${totalDuration} min</div>
+        <div class="lesson-card" data-lesson-id="${lesson.id}">
+            <div class="lesson-header">
+                <span class="lesson-handle">☰</span>
+                <div class="lesson-number">${index + 1}</div>
+                <input type="text" class="lesson-title-input" value="${escapeHtml(lesson.title)}" 
+                       onchange="window.updateLessonTitle('${lesson.id}', this.value)">
+                <div class="lesson-meta-inline">${chapterCount} chapters • ${totalDuration} min</div>
+                <div class="lesson-actions">
+                    <button class="btn btn-sm btn-primary" onclick="window.editLesson('${lesson.id}')">Edit</button>
+                    <button class="btn-icon" onclick="window.deleteLesson('${lesson.id}')">🗑️</button>
+                </div>
             </div>
-            <div class="lesson-actions" onclick="event.stopPropagation()">
-                <button class="btn-icon" onclick="window.deleteLesson('${sectionId}', '${lesson.id}')">🗑️</button>
+            <div class="chapters-preview" id="chapters-${lesson.id}">
+                ${renderChaptersPreview(lesson.chapters || [])}
             </div>
         </div>
     `;
     }).join('');
+    
+    console.log('Lessons rendered:', currentCourse.lessons.length);
 }
+
+function renderChaptersPreview(chapters) {
+    if (chapters.length === 0) {
+        return '<p style="color: var(--text-color); opacity: 0.7; padding: 0.5rem 1rem; font-size: 0.9rem;">No chapters yet</p>';
+    }
+    
+    return '<div class="chapters-preview-list">' + chapters.map((chapter, index) => `
+        <div class="chapter-preview-item">
+            <span class="chapter-preview-icon">${getChapterIcon(chapter.type)}</span>
+            <span class="chapter-preview-title">${index + 1}. ${escapeHtml(chapter.title)}</span>
+            <span class="chapter-preview-duration">${chapter.duration || 5} min</span>
+        </div>
+    `).join('') + '</div>';
+}
+
 
 function calculateLessonDuration(lesson) {
     if (!lesson.chapters || lesson.chapters.length === 0) return 0;
@@ -395,73 +392,27 @@ function getLessonIcon(type) {
     return icons[type] || '📄';
 }
 
-window.updateSectionTitle = function(sectionId, title) {
-    console.log('Updating section title:', sectionId, title);
-    const section = currentCourse.sections.find(s => s.id === sectionId);
-    if (section) {
-        section.title = title;
+window.updateLessonTitle = function(lessonId, title) {
+    console.log('Updating lesson title:', lessonId, title);
+    const lesson = currentCourse.lessons.find(l => l.id === lessonId);
+    if (lesson) {
+        lesson.title = title;
         autoSave();
     }
 }
 
-window.deleteSection = function(sectionId) {
-    if (confirm('Delete this section and all its lessons?')) {
-        currentCourse.sections = currentCourse.sections.filter(s => s.id !== sectionId);
-        renderSections();
-        updateSectionCount();
-        autoSave();
-    }
+function updateLessonCount() {
+    const totalLessons = currentCourse.lessons.length;
+    const totalChapters = currentCourse.lessons.reduce((sum, l) => sum + (l.chapters?.length || 0), 0);
+    document.getElementById('lessonCount').textContent = `${totalLessons} lessons, ${totalChapters} chapters`;
 }
 
-function updateSectionCount() {
-    const totalLessons = currentCourse.sections.reduce((sum, s) => sum + s.lessons.length, 0);
-    document.getElementById('sectionCount').textContent = totalLessons;
-}
 
-// Lessons Management - FIXED
-window.addLesson = function(sectionId) {
-    console.log('Adding lesson to section:', sectionId);
-    
-    currentSectionId = sectionId;
-    currentLessonId = null;
-    
-    // Create new lesson directly
-    lessonCounter++;
-    const section = currentCourse.sections.find(s => s.id === sectionId);
-    
-    if (!section) {
-        console.error('Section not found:', sectionId);
-        return;
-    }
-    
-    const newLesson = {
-        id: `lesson-${Date.now()}-${lessonCounter}`,
-        title: `Lesson ${section.lessons.length + 1}`,
-        description: '',
-        order: section.lessons.length + 1,
-        chapters: []
-    };
-    
-    section.lessons.push(newLesson);
-    console.log('Lesson added:', newLesson);
-    
-    renderSections();
-    updateSectionCount();
-    autoSave();
-    
-    // Open lesson editor
-    editLesson(sectionId, newLesson.id);
-}
-
-window.editLesson = function(sectionId, lessonId) {
-    console.log('Editing lesson:', sectionId, lessonId);
-    currentSectionId = sectionId;
+window.editLesson = function(lessonId) {
+    console.log('Editing lesson:', lessonId);
     currentLessonId = lessonId;
     
-    const section = currentCourse.sections.find(s => s.id === sectionId);
-    if (!section) return;
-    
-    const lesson = section.lessons.find(l => l.id === lessonId);
+    const lesson = currentCourse.lessons.find(l => l.id === lessonId);
     if (!lesson) return;
     
     // Show lesson editor modal with chapters
@@ -530,15 +481,12 @@ function saveLesson() {
     closeLessonModal();
 }
 
-window.deleteLesson = function(sectionId, lessonId) {
+window.deleteLesson = function(lessonId) {
     if (confirm('Delete this lesson and all its chapters?')) {
-        const section = currentCourse.sections.find(s => s.id === sectionId);
-        if (section) {
-            section.lessons = section.lessons.filter(l => l.id !== lessonId);
-            renderSections();
-            updateSectionCount();
-            autoSave();
-        }
+        currentCourse.lessons = currentCourse.lessons.filter(l => l.id !== lessonId);
+        renderLessons();
+        updateLessonCount();
+        autoSave();
     }
 }
 
@@ -600,17 +548,14 @@ window.saveLesson = function() {
         return;
     }
     
-    const section = currentCourse.sections.find(s => s.id === currentSectionId);
-    if (!section) return;
-    
-    const lesson = section.lessons.find(l => l.id === currentLessonId);
+    const lesson = currentCourse.lessons.find(l => l.id === currentLessonId);
     if (!lesson) return;
     
     lesson.title = title;
     lesson.description = document.getElementById('lessonDescription').value;
     
     closeLessonModal();
-    renderSections();
+    renderLessons();
     autoSave();
 }
 

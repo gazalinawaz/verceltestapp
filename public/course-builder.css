@@ -260,35 +260,49 @@
     cursor: pointer;
 }
 
-/* Sections Container */
-.sections-container {
+/* Lessons Container */
+.lessons-container {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
 }
 
-.section-card {
+.lesson-card {
     background: white;
     border-radius: 12px;
     padding: 1.5rem;
     box-shadow: var(--shadow);
+    border-left: 4px solid var(--primary-color);
 }
 
-.section-header {
+.lesson-header {
     display: flex;
     align-items: center;
     gap: 1rem;
     margin-bottom: 1rem;
 }
 
-.section-handle {
+.lesson-handle {
     cursor: move;
     font-size: 1.2rem;
     color: var(--text-color);
     opacity: 0.5;
 }
 
-.section-title-input {
+.lesson-number {
+    background: var(--primary-color);
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.lesson-title-input {
     flex: 1;
     font-size: 1.1rem;
     font-weight: 600;
@@ -298,60 +312,59 @@
     transition: border-color 0.3s ease;
 }
 
-.section-title-input:focus {
+.lesson-title-input:focus {
     outline: none;
     border-bottom-color: var(--primary-color);
 }
 
-.section-actions {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.lessons-list {
-    margin-top: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.lesson-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    background: var(--light-color);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.2s ease;
-}
-
-.lesson-item:hover {
-    background: #e0e7ff;
-}
-
-.lesson-icon {
-    font-size: 1.5rem;
-}
-
-.lesson-info {
-    flex: 1;
-}
-
-.lesson-title {
-    font-weight: 600;
-    color: var(--dark-color);
-}
-
-.lesson-meta {
+.lesson-meta-inline {
     font-size: 0.85rem;
     color: var(--text-color);
     opacity: 0.7;
+    white-space: nowrap;
 }
 
 .lesson-actions {
     display: flex;
     gap: 0.5rem;
+}
+
+/* Chapters Preview */
+.chapters-preview {
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.chapters-preview-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.chapter-preview-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem;
+    background: var(--light-color);
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.chapter-preview-icon {
+    font-size: 1.2rem;
+}
+
+.chapter-preview-title {
+    flex: 1;
+    color: var(--dark-color);
+}
+
+.chapter-preview-duration {
+    color: var(--text-color);
+    opacity: 0.7;
+    font-size: 0.85rem;
 }
 
 /* Modal */
