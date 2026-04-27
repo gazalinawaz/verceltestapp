@@ -32,17 +32,46 @@ let chapterCounter = 0;
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Course Builder initializing...');
-    checkAuthStatus();
-    checkAdminAccess();
+    
+    try {
+        // These functions are from app.js - check if they exist
+        if (typeof checkAuthStatus === 'function') {
+            checkAuthStatus();
+        }
+        if (typeof checkAdminAccess === 'function') {
+            checkAdminAccess();
+        }
+    } catch (e) {
+        console.warn('Auth check functions not available:', e);
+    }
+    
+    // Always run these critical functions
     initializeEditors();
     setupEventListeners();
     loadDraftCourse();
+    
     console.log('Course Builder ready');
+    console.log('Thumbnail upload element:', document.getElementById('thumbnailUpload'));
+    console.log('Thumbnail input element:', document.getElementById('thumbnailInput'));
 });
 
 // Initialize Rich Text Editors
 function initializeEditors() {
+    console.log('Initializing editors...');
+    
+    // Check if Quill is loaded
+    if (typeof Quill === 'undefined') {
+        console.error('Quill library not loaded!');
+        return;
+    }
+    
     // Description editor
+    const descEditorEl = document.querySelector('#descriptionEditor');
+    if (!descEditorEl) {
+        console.error('Description editor element not found');
+        return;
+    }
+    
     descriptionEditor = new Quill('#descriptionEditor', {
         theme: 'snow',
         placeholder: 'Describe your course in detail...',
@@ -57,8 +86,16 @@ function initializeEditors() {
             ]
         }
     });
+    console.log('Description editor initialized');
 
     // Article editor (for lessons)
+    const articleEditorEl = document.querySelector('#articleEditor');
+    if (!articleEditorEl) {
+        console.warn('Article editor element not found (this is OK, it\'s in a modal)');
+        // Don't initialize article editor yet - it's in a modal that may not be rendered
+        return;
+    }
+    
     articleEditor = new Quill('#articleEditor', {
         theme: 'snow',
         placeholder: 'Write your article content...',
@@ -74,6 +111,7 @@ function initializeEditors() {
             ]
         }
     });
+    console.log('Article editor initialized');
 }
 
 // Setup Event Listeners
