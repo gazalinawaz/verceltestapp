@@ -9,6 +9,76 @@
     <link rel="stylesheet" href="course-builder-enhanced.css?v=2">
     <!-- Quill Rich Text Editor -->
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    
+    <!-- NYTimes Color Override - Inline Critical CSS -->
+    <style>
+        :root {
+            --primary: #326891 !important;
+            --primary-dark: #1a4d6d !important;
+            --primary-light: #5089b3 !important;
+            --text-primary: #121212 !important;
+            --text-secondary: #333333 !important;
+            --text-muted: #6f6f6f !important;
+            --bg-primary: #ffffff !important;
+            --bg-secondary: #fafafa !important;
+            --bg-tertiary: #f4f4f4 !important;
+            --border-color: #e8e8e8 !important;
+            --border-focus: #326891 !important;
+        }
+        
+        .builder-section {
+            background: #fafafa !important;
+        }
+        
+        .btn-primary {
+            background: #326891 !important;
+        }
+        
+        .btn-primary:hover {
+            background: #1a4d6d !important;
+        }
+        
+        .outline-item.active {
+            background: #f4f4f4 !important;
+            border-left-color: #326891 !important;
+            color: #326891 !important;
+        }
+        
+        .outline-badge {
+            background: #326891 !important;
+        }
+        
+        .lesson-number {
+            background: #326891 !important;
+        }
+        
+        .lesson-card {
+            border-left-color: #326891 !important;
+        }
+        
+        .form-input:focus {
+            border-color: #326891 !important;
+            box-shadow: 0 0 0 3px rgba(50, 104, 145, 0.1) !important;
+        }
+        
+        .image-upload-area:focus {
+            border-color: #326891 !important;
+            box-shadow: 0 0 0 4px rgba(50, 104, 145, 0.1) !important;
+        }
+        
+        .rich-editor:focus-within {
+            border-color: #326891 !important;
+            box-shadow: 0 0 0 3px rgba(50, 104, 145, 0.1) !important;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            color: #121212 !important;
+        }
+        
+        body {
+            color: #333333 !important;
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
