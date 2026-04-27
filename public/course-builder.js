@@ -116,6 +116,18 @@ function initializeEditors() {
 function setupEventListeners() {
     console.log('Setting up event listeners...');
     
+    // Course ID field - ensure it's editable and updates on change
+    const courseIdField = document.getElementById('courseId');
+    if (courseIdField) {
+        courseIdField.removeAttribute('readonly');
+        courseIdField.removeAttribute('disabled');
+        courseIdField.addEventListener('input', (e) => {
+            currentCourse.id = e.target.value.trim();
+            autoSave();
+        });
+        console.log('Course ID field is editable');
+    }
+    
     // Thumbnail upload - COMPLETELY REWRITTEN
     const thumbnailUpload = document.getElementById('thumbnailUpload');
     const thumbnailInput = document.getElementById('thumbnailInput');

@@ -161,9 +161,9 @@
 
                     <div class="form-row">
                         <div class="form-section">
-                            <label class="form-label">Course ID *</label>
-                            <input type="text" id="courseId" class="form-input" placeholder="python-masterclass" pattern="[a-z0-9-]+">
-                            <small>Lowercase letters, numbers, and hyphens only</small>
+                            <label class="form-label">Course ID * <button type="button" onclick="document.getElementById('courseId').value=''; document.getElementById('courseId').focus();" style="background: none; border: none; color: #326891; cursor: pointer; font-size: 0.85rem; text-decoration: underline;">Clear</button></label>
+                            <input type="text" id="courseId" class="form-input" placeholder="e.g., python-masterclass" pattern="[a-z0-9-]+" autocomplete="off">
+                            <small style="color: var(--text-muted);">Lowercase letters, numbers, and hyphens only. Click "Clear" to reset.</small>
                         </div>
                         <div class="form-section">
                             <label class="form-label">Category</label>
