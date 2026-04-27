@@ -5,7 +5,13 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:lifecycle": "node run-lifecycle-test.js",
+    "test:lifecycle:headless": "npx playwright test tests/06-full-lifecycle.spec.js"
   },
   "keywords": [
     "landing-page",
