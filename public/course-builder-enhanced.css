@@ -2,36 +2,36 @@
 /* Inspired by NYTimes, Udemy, and modern web standards */
 
 :root {
-    /* Professional Color Palette */
-    --primary: #5624d0;
-    --primary-dark: #401b9c;
-    --primary-light: #7c4dff;
-    --secondary: #ec5252;
-    --success: #13ce66;
-    --warning: #ffc82c;
-    --danger: #ff4949;
+    /* NYTimes-Inspired Color Palette */
+    --primary: #326891;
+    --primary-dark: #1a4d6d;
+    --primary-light: #5089b3;
+    --secondary: #d0021b;
+    --success: #0a7e3e;
+    --warning: #f5a623;
+    --danger: #d0021b;
     
-    /* Neutrals */
+    /* Neutrals - NYTimes Style */
     --gray-50: #fafafa;
-    --gray-100: #f5f5f5;
-    --gray-200: #e5e5e5;
+    --gray-100: #f4f4f4;
+    --gray-200: #e8e8e8;
     --gray-300: #d4d4d4;
-    --gray-400: #a3a3a3;
-    --gray-500: #737373;
-    --gray-600: #525252;
-    --gray-700: #404040;
-    --gray-800: #262626;
-    --gray-900: #171717;
+    --gray-400: #a0a0a0;
+    --gray-500: #6f6f6f;
+    --gray-600: #4a4a4a;
+    --gray-700: #333333;
+    --gray-800: #1a1a1a;
+    --gray-900: #121212;
     
     /* Semantic Colors */
-    --text-primary: #1c1d1f;
-    --text-secondary: #6a6f73;
-    --text-muted: #9ca3af;
+    --text-primary: #121212;
+    --text-secondary: #333333;
+    --text-muted: #6f6f6f;
     --bg-primary: #ffffff;
-    --bg-secondary: #f7f9fa;
-    --bg-tertiary: #f3f4f6;
-    --border-color: #e5e7eb;
-    --border-focus: #5624d0;
+    --bg-secondary: #fafafa;
+    --bg-tertiary: #f4f4f4;
+    --border-color: #e8e8e8;
+    --border-focus: #326891;
     
     /* Shadows */
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -131,10 +131,10 @@
 }
 
 .outline-item.active {
-    background: linear-gradient(90deg, rgba(86, 36, 208, 0.08) 0%, transparent 100%);
+    background: #f4f4f4;
     border-left-color: var(--primary);
     color: var(--primary);
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .outline-icon {
@@ -355,8 +355,8 @@
 
 .image-upload-area:focus {
     border-color: var(--primary);
-    background: rgba(86, 36, 208, 0.03);
-    box-shadow: 0 0 0 4px rgba(86, 36, 208, 0.1);
+    background: rgba(50, 104, 145, 0.03);
+    box-shadow: 0 0 0 4px rgba(50, 104, 145, 0.1);
 }
 
 .image-upload-area:focus .upload-placeholder p {
@@ -430,7 +430,7 @@
 }
 
 .lesson-number {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    background: var(--primary);
     color: white;
     width: 40px;
     height: 40px;
@@ -533,7 +533,7 @@
 
 .rich-editor:focus-within {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(86, 36, 208, 0.1);
+    box-shadow: 0 0 0 3px rgba(50, 104, 145, 0.1);
 }
 
 .rich-editor .ql-toolbar {
