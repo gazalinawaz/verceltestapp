@@ -80,29 +80,34 @@ app.get('/api/auth/status', async (req, res) => {
     });
   }
   
-  // Get access token from session
+  // Get tokens from session
   let accessToken = null;
   let tokenError = null;
   let idToken = null;
   let claims = null;
   
   try {
-    // Try to get access token
-    accessToken = await req.oidc.accessToken();
+    // Access token is a property, not a method
+    accessToken = req.oidc.accessToken;
     console.log('🔑 Access Token Retrieved:', accessToken ? 'YES' : 'NO');
     console.log('📊 Token length:', accessToken ? accessToken.length : 0);
     
-    // Get ID token for comparison
+    // Get ID token
     idToken = req.oidc.idToken;
     console.log('🆔 ID Token exists:', !!idToken);
+    console.log('🆔 ID Token length:', idToken ? idToken.length : 0);
     
     // Get token claims
     claims = req.oidc.idTokenClaims;
     console.log('📋 Token claims audience (aud):', claims?.aud);
     console.log('📋 Token claims issuer (iss):', claims?.iss);
+    console.log('📋 Token claims scope:', claims?.scope);
+    
+    // Log what's available in req.oidc
+    console.log('📦 Available in req.oidc:', Object.keys(req.oidc));
     
   } catch (error) {
-    console.error('❌ Error getting access token:', error.message);
+    console.error('❌ Error getting tokens:', error.message);
     console.error('❌ Full error:', error);
     tokenError = error.message;
   }
