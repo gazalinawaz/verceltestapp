@@ -50,6 +50,14 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
+// Course Builder route (protected - admin only)
+app.get('/course-builder', (req, res) => {
+  if (!req.oidc.isAuthenticated()) {
+    return res.redirect('/login');
+  }
+  res.sendFile(path.join(__dirname, 'public', 'course-builder.html'));
+});
+
 // Profile route (protected)
 app.get('/profile', (req, res) => {
   if (!req.oidc.isAuthenticated()) {

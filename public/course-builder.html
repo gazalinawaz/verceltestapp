@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Builder - Merryweather Academy</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="learning-styles.css">
+    <link rel="stylesheet" href="admin-styles.css">
+    <link rel="stylesheet" href="course-builder.css">
+    <!-- Quill Rich Text Editor -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="/" style="text-decoration: none; color: inherit;">
+                    <span class="logo-icon">📚</span>
+                    Merryweather Academy
+                </a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/">Home</a></li>
+                <li><a href="/admin">Admin</a></li>
+                <li><a href="/course-builder" class="active">Course Builder</a></li>
+            </ul>
+            <div class="nav-auth">
+                <div id="userProfile" class="user-profile">
+                    <img id="userAvatar" src="" alt="User" class="user-avatar">
+                    <span id="userName"></span>
+                    <button id="logoutBtn" class="btn btn-secondary btn-sm" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Course Builder Section -->
+    <section class="builder-section">
+        <div class="builder-container">
+            <!-- Left Sidebar - Course Structure -->
+            <aside class="builder-sidebar">
+                <div class="sidebar-header">
+                    <h3>Course Structure</h3>
+                    <button class="btn btn-sm btn-primary" onclick="saveCourse()">💾 Save Course</button>
+                </div>
+                
+                <div class="course-outline">
+                    <div class="outline-item active" onclick="showPanel('basics')">
+                        <span class="outline-icon">📋</span>
+                        <span>Course Basics</span>
+                    </div>
+                    <div class="outline-item" onclick="showPanel('curriculum')">
+                        <span class="outline-icon">📚</span>
+                        <span>Curriculum</span>
+                        <span class="outline-badge" id="sectionCount">0</span>
+                    </div>
+                    <div class="outline-item" onclick="showPanel('pricing')">
+                        <span class="outline-icon">💰</span>
+                        <span>Pricing</span>
+                    </div>
+                    <div class="outline-item" onclick="showPanel('settings')">
+                        <span class="outline-icon">⚙️</span>
+                        <span>Settings</span>
+                    </div>
+                    <div class="outline-item" onclick="showPanel('preview')">
+                        <span class="outline-icon">👁️</span>
+                        <span>Preview</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="builder-main">
+                <!-- Course Basics Panel -->
+                <div id="basicsPanel" class="builder-panel active">
+                    <div class="panel-header">
+                        <h2>Course Basics</h2>
+                        <p>Fill in the essential information about your course</p>
+                    </div>
+
+                    <div class="form-section">
+                        <label class="form-label">Course Title *</label>
+                        <input type="text" id="courseTitle" class="form-input" placeholder="e.g., Complete Python Programming Masterclass">
+                    </div>
+
+                    <div class="form-section">
+                        <label class="form-label">Course Subtitle</label>
+                        <input type="text" id="courseSubtitle" class="form-input" placeholder="A brief, engaging description">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-section">
+                            <label class="form-label">Course ID *</label>
+                            <input type="text" id="courseId" class="form-input" placeholder="python-masterclass" pattern="[a-z0-9-]+">
+                            <small>Lowercase letters, numbers, and hyphens only</small>
+                        </div>
+                        <div class="form-section">
+                            <label class="form-label">Category</label>
+                            <select id="courseCategory" class="form-input">
+                                <option value="">Select category</option>
+                                <option value="development">Development</option>
+                                <option value="design">Design</option>
+                                <option value="business">Business</option>
+                                <option value="marketing">Marketing</option>
+                                <option value="data-science">Data Science</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <label class="form-label">Course Description *</label>
+                        <div id="descriptionEditor" class="rich-editor"></div>
+                    </div>
+
+                    <div class="form-section">
+                        <label class="form-label">What students will learn</label>
+                        <div id="learningObjectives" class="objectives-list">
+                            <div class="objective-item">
+                                <input type="text" class="form-input" placeholder="Learning objective 1">
+                                <button class="btn-icon" onclick="removeObjective(this)">🗑️</button>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="addObjective()">+ Add Objective</button>
+                    </div>
+
+                    <div class="form-section">
+                        <label class="form-label">Course Thumbnail</label>
+                        <div class="image-upload-area" id="thumbnailUpload">
+                            <div class="upload-placeholder">
+                                <span class="upload-icon">🖼️</span>
+                                <p>Click to upload or paste screenshot</p>
+                                <small>Recommended: 1280x720px (16:9 ratio)</small>
+                            </div>
+                            <input type="file" id="thumbnailInput" accept="image/*" style="display: none;">
+                            <img id="thumbnailPreview" style="display: none; max-width: 100%; border-radius: 8px;">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-section">
+                            <label class="form-label">Level</label>
+                            <select id="courseLevel" class="form-input">
+                                <option value="Beginner">Beginner</option>
+                                <option value="Intermediate">Intermediate</option>
+                                <option value="Advanced">Advanced</option>
+                                <option value="All Levels">All Levels</option>
+                            </select>
+                        </div>
+                        <div class="form-section">
+                            <label class="form-label">Language</label>
+                            <select id="courseLanguage" class="form-input">
+                                <option value="English">English</option>
+                                <option value="Spanish">Spanish</option>
+                                <option value="French">French</option>
+                                <option value="German">German</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Curriculum Panel -->
+                <div id="curriculumPanel" class="builder-panel">
+                    <div class="panel-header">
+                        <h2>Curriculum</h2>
+                        <p>Build your course content with sections and lessons</p>
+                        <button class="btn btn-primary" onclick="addSection()">+ Add Section</button>
+                    </div>
+
+                    <div id="sectionsContainer" class="sections-container">
+                        <!-- Sections will be added here dynamically -->
+                    </div>
+                </div>
+
+                <!-- Pricing Panel -->
+                <div id="pricingPanel" class="builder-panel">
+                    <div class="panel-header">
+                        <h2>Pricing</h2>
+                        <p>Set your course pricing and enrollment options</p>
+                    </div>
+
+                    <div class="form-section">
+                        <label class="form-label">Course Type</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="courseType" value="free" checked>
+                                <span>Free</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="courseType" value="paid">
+                                <span>Paid</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-section" id="pricingSection" style="display: none;">
+                        <label class="form-label">Price (USD)</label>
+                        <input type="number" id="coursePrice" class="form-input" placeholder="49.99" min="0" step="0.01">
+                    </div>
+                </div>
+
+                <!-- Settings Panel -->
+                <div id="settingsPanel" class="builder-panel">
+                    <div class="panel-header">
+                        <h2>Course Settings</h2>
+                        <p>Configure additional course options</p>
+                    </div>
+
+                    <div class="form-section">
+                        <label class="form-label">Course Icon (Emoji)</label>
+                        <input type="text" id="courseIcon" class="form-input" placeholder="🐍" maxlength="2">
+                    </div>
+
+                    <div class="form-section">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="enableCertificate">
+                            <span>Enable certificate upon completion</span>
+                        </label>
+                    </div>
+
+                    <div class="form-section">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="enableDiscussions">
+                            <span>Enable student discussions</span>
+                        </label>
+                    </div>
+
+                    <div class="form-section">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="publishCourse">
+                            <span>Publish course immediately</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Preview Panel -->
+                <div id="previewPanel" class="builder-panel">
+                    <div class="panel-header">
+                        <h2>Course Preview</h2>
+                        <p>See how your course will appear to students</p>
+                    </div>
+
+                    <div id="coursePreview" class="course-preview-container">
+                        <!-- Preview will be generated here -->
+                    </div>
+                </div>
+            </main>
+        </div>
+    </section>
+
+    <!-- Lesson Editor Modal -->
+    <div id="lessonModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>Edit Lesson</h3>
+                <button class="modal-close" onclick="closeLessonModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-section">
+                    <label class="form-label">Lesson Title *</label>
+                    <input type="text" id="lessonTitle" class="form-input" placeholder="Introduction to Variables">
+                </div>
+
+                <div class="form-section">
+                    <label class="form-label">Lesson Type</label>
+                    <select id="lessonType" class="form-input" onchange="updateLessonTypeFields()">
+                        <option value="video">Video</option>
+                        <option value="article">Article</option>
+                        <option value="quiz">Quiz</option>
+                    </select>
+                </div>
+
+                <div id="videoFields" class="lesson-type-fields">
+                    <div class="form-section">
+                        <label class="form-label">Video URL</label>
+                        <input type="url" id="videoUrl" class="form-input" placeholder="https://youtube.com/watch?v=...">
+                        <small>YouTube, Vimeo, or direct video URL</small>
+                    </div>
+                    <div class="form-section">
+                        <label class="form-label">Duration (minutes)</label>
+                        <input type="number" id="lessonDuration" class="form-input" placeholder="15" min="1">
+                    </div>
+                </div>
+
+                <div id="articleFields" class="lesson-type-fields" style="display: none;">
+                    <div class="form-section">
+                        <label class="form-label">Article Content</label>
+                        <div id="articleEditor" class="rich-editor"></div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <label class="form-label">Lesson Description</label>
+                    <textarea id="lessonDescription" class="form-input" rows="3" placeholder="Brief description of what this lesson covers"></textarea>
+                </div>
+
+                <div class="form-section">
+                    <label class="form-label">Attachments & Resources</label>
+                    <div class="image-upload-area" id="lessonAttachments">
+                        <div class="upload-placeholder">
+                            <span class="upload-icon">📎</span>
+                            <p>Click to upload or paste images/files</p>
+                        </div>
+                    </div>
+                    <div id="attachmentsList" class="attachments-list"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeLessonModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveLesson()">Save Lesson</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="app.js"></script>
+    <script src="course-builder.js"></script>
+</body>
+</html>
