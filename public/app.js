@@ -8,6 +8,7 @@ async function checkAuthStatus() {
         const data = await response.json();
         
         const loginBtn = document.getElementById('loginBtn');
+        const signupBtn = document.getElementById('signupBtn');
         const logoutBtn = document.getElementById('logoutBtn');
         const userProfile = document.getElementById('userProfile');
         const gatedContent = document.getElementById('gatedContent');
@@ -15,6 +16,7 @@ async function checkAuthStatus() {
         if (data.isAuthenticated && data.user) {
             // User is logged in
             if (loginBtn) loginBtn.style.display = 'none';
+            if (signupBtn) signupBtn.style.display = 'none';
             if (logoutBtn) logoutBtn.style.display = 'inline-block';
             
             if (userProfile) {
@@ -31,6 +33,7 @@ async function checkAuthStatus() {
         } else {
             // User is not logged in
             if (loginBtn) loginBtn.style.display = 'inline-block';
+            if (signupBtn) signupBtn.style.display = 'inline-block';
             if (logoutBtn) logoutBtn.style.display = 'none';
             if (userProfile) userProfile.style.display = 'none';
             if (gatedContent) gatedContent.style.display = 'none';
